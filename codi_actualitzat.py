@@ -1,5 +1,8 @@
 import re
 from datetime import datetime
+from xarxes_socials_functions import *
+from xarxes_socials_enhanced import *
+
 
 # Classe Usuari
 class Usuari:
@@ -23,10 +26,161 @@ class Usuari:
             "recordatoris": [],
         }
         self.monitoratge = None  # El metge que monitoritza
+        self.xarxes_socials = {
+            "contactes": {},  # Unified contacts dictionary
+            "xats": {},  # Chats with each contact
+            "trucades": [],
+            "grups": {}
+        }
 
     def __str__(self):
-        return f"Usuari: {self.nom+" "+self.cognom1+" "+self.cognom2}, Telèfon: {self.telefon}, Sexe: {self.sexe}, Data Naixement: {self.dia+"/"+self.mes+"/"+self.anyy}, Correu: {self.correu}"
+        return f"Usuari: {self.nom} {self.cognom1} {self.cognom2}, Telèfon: {self.telefon}, Sexe: {self.sexe}, Data Naixement: {self.dia}/{self.mes}/{self.anyy}, Correu: {self.correu}"
+    def gestionar_contactes(self):
+        """Gestiona la llista de contactes"""
+        while True:
+            print("\n--- Gestió de Contactes ---")
+            print("1. Veure contactes")
+            print("2. Afegir contacte")
+            print("3. Tornar")
+            
+            opcio = input("Selecciona una opció: ")
+            
+            if opcio == "1":
+                self._mostrar_contactes()
+            elif opcio == "2":
+                self._afegir_contacte()
+            elif opcio == "3":
+                break
+            else:
+                print("Opció no vàlida.")
 
+    def _mostrar_contactes(self):
+        """Mostra tots els contactes"""
+        if not self.xarxes_socials["contactes"]:
+            print("No tens cap contacte.")
+            return
+        
+        print("\n--- Els teus Contactes ---")
+        for nom, detalls in self.xarxes_socials["contactes"].items():
+            print(f"Nom: {nom}")
+            print(f"Telèfon: {detalls.get('telefon', 'No disponible')}")
+            print(f"Correu: {detalls.get('correu', 'No disponible')}")
+            print("---")
+
+    def _afegir_contacte(self):
+        """Afegeix un nou contacte"""
+        nom = input("Introdueix el nom del contacte: ")
+        
+        # Comprova si el contacte ja existeix
+        if nom in self.xarxes_socials["contactes"]:
+            print(f"El contacte {nom} ja existeix.")
+            return
+        
+        telefon = input("Introdueix el telèfon (opcional): ")
+        correu = input("Introdueix el correu (opcional): ")
+        
+        # Afegeix el contacte
+        self.xarxes_socials["contactes"][nom] = {
+            "telefon": telefon,
+            "correu": correu,
+            "xats": []  # Historial de xats amb aquest contacte
+        }
+        print(f"Contacte {nom} afegit!")
+
+    def gestionar_xats(self):
+        """Gestiona els xats de l'usuari, similar a WhatsApp"""
+        while True:
+            print("\n--- Xats ---")
+            if not self.xarxes_socials["xats"] and not self.xarxes_socials:
+                print("No tens cap xat. Vols iniciar un nou xat?")
+                self._preguntar_afegir_contacte()
+                
+
+            # Mostrar la llista de xats
+            print("\nSelecciona un xat o inicia un de nou:")
+            xats = []
+            if self.xarxes_socials["xats"]:
+                xats = list(self.xarxes_socials["xats"].keys())
+                for i, contacte in enumerate(xats, 1):
+                    print(f"{i}. {contacte}")
+            print(f"{len(xats) + 1}. Iniciar un nou xat")
+            print(f"{len(xats) + 2}. Tornar al menú principal")
+            
+            try:
+                seleccio = int(input("Selecciona una opció: "))
+                if 1 <= seleccio <= len(xats):
+                    contacte = xats[seleccio - 1]
+                    self._interactuar_xat(contacte)
+                elif seleccio == len(xats) + 1:
+                    self._enviar_missatge_nou()
+                elif seleccio == len(xats) + 2:
+                    break
+                else:
+                    print("Opció no vàlida.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, selecciona un número.")
+
+    def _interactuar_xat(self, contacte):
+        #FARIA QUE FINS QUE NO VULGUI SORTIR NO SURTI DEL XAT
+        """Permet interactuar amb un xat existent"""
+        print(f"\n--- Xat amb {contacte} ---")
+        missatges = self.xarxes_socials["xats"].get(contacte, [])
+        for missatge in missatges:
+            print(missatge)
+
+        missatge_nou = input(f"Missatge per {contacte} (buit per tornar): ").strip()
+        if missatge_nou:
+            self.xarxes_socials["xats"][contacte].append(f"Tu: {missatge_nou}")
+            print("Missatge enviat!")
+
+    def _enviar_missatge_nou(self):
+        """Inicia un nou xat seleccionant un contacte"""
+        if not self.xarxes_socials["contactes"]:
+            print("No tens contactes disponibles per iniciar un xat.")
+            self._preguntar_afegir_contacte()
+            return
+
+        contactes = list(self.xarxes_socials["contactes"].keys())
+        print("\nSelecciona un contacte per iniciar un xat:")
+        for i, contacte in enumerate(contactes, 1):
+            print(f"{i}. {contacte}")
+
+        try:
+            seleccio = int(input("Número de contacte: "))
+            if 1 <= seleccio <= len(contactes):
+                contacte = contactes[seleccio - 1]
+                if contacte not in self.xarxes_socials["xats"]:
+                    self.xarxes_socials["xats"][contacte] = []
+                self._interactuar_xat(contacte)
+            else:
+                print("Selecció no vàlida.")
+        except ValueError:
+            print("Entrada no vàlida. Si us plau, selecciona un número.")
+    def _preguntar_afegir_contacte(self):
+        """Pregunta a l'usuari si vol afegir un contacte"""
+        while True:
+            resposta = input("Vols afegir un contacte? (Si/No): ").strip().lower()
+            if resposta == "si":
+                self._afegir_contacte()
+            if resposta == "no":
+                return
+                
+
+    def afegir_medicacio(self):
+        medicacio = input("")
+        self.dades_mediques["medicacions"].append(medicacio)
+
+    def eliminar_medicacio(self, medicacio):
+        """Elimina una medicación del usuario."""
+        if medicacio in self.dades_mediques["medicacions"]:
+            self.dades_mediques["medicacions"].remove(medicacio)
+        else:
+            print(f"La medicació '{medicacio}' no existeix.")
+
+    def veure_medicacions(self):
+        """Devuelve la lista de medicaciones."""
+        return self.dades_mediques["medicacions"]
+    
 # Validació de correu electrònic
 def validar_correu(correu):
     return re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None
@@ -43,6 +197,19 @@ def validar_data(dia, mes, anyy):
     except ValueError:
         return False
 
+def validar_telefon(tel):
+    if len(tel) != 9:
+        print("Número de telèfon incorrecte")
+        return False
+    return True
+
+def introduir_telefon():
+    while True:
+        tel = input("Introdueix el teu telèfon:")
+        res = validar_telefon(tel)
+        if res:
+            return tel
+        
 # Mostrar notificacions
 def mostrar_notificacions(usuari):
     print("\n--- Notificacions ---")
@@ -93,20 +260,32 @@ def completar_registre_medic(usuari):
     print("Dies disponibles:")
     for i, dia in enumerate(dies_disponibles, 1):
         print(f"{i}. {dia}")
-    
-    opcio_dia = input("Selecciona el dia (1 o 2): ")
+    while True:
+        opcio_dia = input("Selecciona el dia (1 o 2): ")
+        if opcio_dia == "1" or opcio_dia == "2":
+            break
+        print("Opció incorrecta")
     dia_seleccionat = dies_disponibles[int(opcio_dia)-1]
     hores_disponibles = ["10:00", "11:00", "12:00", "13:00"]
     
     print("\nHores disponibles per a la cita:")
     for i, hora in enumerate(hores_disponibles, 1):
         print(f"{i}. {hora}")
+    while True:
+        opcio_hora = int(input("Selecciona l'hora: "))
+        if 1<= opcio_hora <= len(hores_disponibles):
+            break
+        print("Opció incorrecta")
+    hora_seleccionada = hores_disponibles[opcio_hora-1]
+
+    #potser massa restrictiu?
+    while True:
+        tipus_visita = input("\nSelecciona el tipus de visita (online/presencial): ").lower()
+        if tipus_visita == "online" or tipus_visita == "presencial":
+            break
+        print("Opció incorrecte")
+    ############################################
     
-    opcio_hora = input("Selecciona l'hora: ")
-    hora_seleccionada = hores_disponibles[int(opcio_hora)-1]
-
-    tipus_visita = input("\nSelecciona el tipus de visita (online/presencial): ").lower()
-
     cita = f"Cita amb {metge} el {dia_seleccionat} a les {hora_seleccionada} - Tipus de visita: {tipus_visita}"
     usuari.notificacions["cites"].append(cita)
     usuari.monitoratge = metge  # Asignem el metge com qui monitoritza
@@ -165,13 +344,48 @@ def menu_app(usuari, des_de_registre):
                 print(f"Cita concertada: {cita}")
                 usuari.registre_medic_complet = True
             else:
-                print("\n--- Dades Mèdiques ---")
-                for clau, valor in usuari.dades_mediques.items():
-                    print(f"{clau}: {valor}")
-
+                while True:    
+                    print("\n--- Dades Mèdiques ---")
+                    print("1. Visualitzar Dades Mèdiques")
+                    print("2. Editar Dades Mèdiques")
+                    print("3. Tornar al menú principal")
+                    opcio = input("Selecciona una opció: ")
+                    
+                    if opcio == "1":
+                        for clau, valor in usuari.dades_mediques.items():
+                            print(f"{clau}: {valor}")
+                    if opcio == "2":
+                        #poder editar dades mèdiques
+                        pass
+                    if opcio == "3":
+                        break
+                    
         elif opcio == "2":
-            print("\n--- Xarxes Socials ---")
-            print("Aquesta funcionalitat encara està en desenvolupament.")
+            while True:
+                print("\n--- Xarxes Socials ---")
+                print("1. Xats")
+                print("2. Trucades")
+                print("3. Grups")
+                print("4. Contactes")
+                print("5. Tornar al Menú Principal")
+                opcio_socials = input("Selecciona una opció: ")
+
+                if opcio_socials == "1":
+                    usuari.gestionar_xats()
+
+                elif opcio_socials == "2":
+                    fer_trucada(usuari)
+
+                elif opcio_socials == "3":
+                    gestionar_grups(usuari)
+                elif opcio_socials == "4":
+                    usuari.gestionar_contactes()
+                elif opcio_socials == "5":
+                    break
+
+                else:
+                    print("Opció no vàlida.")
+
 
         elif opcio == "3":
             while True:
@@ -226,7 +440,7 @@ def main():
 
         elif opcio == "2":  # Registrar-se
             print("\n** Registre **")
-            telefon = input("Introdueix el teu telèfon: ")
+            telefon = introduir_telefon()
             sexe = input("Introdueix el teu sexe: ")
             nom = input("Introdueix el teu nom: ")
             cognom1 = input("Introdueix el teu primer cognom: ")
