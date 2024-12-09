@@ -86,12 +86,13 @@ class Usuari:
             "xats": []  # Historial de xats amb aquest contacte
         }
         print(f"Contacte {nom} afegit!")
+        return nom
 
     def gestionar_xats(self):
         """Gestiona els xats de l'usuari, similar a WhatsApp"""
         while True:
             print("\n--- Xats ---")
-            if not self.xarxes_socials["xats"] and not self.xarxes_socials:
+            if not self.xarxes_socials["xats"] or not self.xarxes_socials["contactes"]:
                 print("No tens cap xat. Vols iniciar un nou xat?")
                 self._preguntar_afegir_contacte()
                 
@@ -144,6 +145,7 @@ class Usuari:
         print("\nSelecciona un contacte per iniciar un xat:")
         for i, contacte in enumerate(contactes, 1):
             print(f"{i}. {contacte}")
+        print(f"{i+1}. Afegir nou contacte")
 
         try:
             seleccio = int(input("Número de contacte: "))
@@ -151,6 +153,10 @@ class Usuari:
                 contacte = contactes[seleccio - 1]
                 if contacte not in self.xarxes_socials["xats"]:
                     self.xarxes_socials["xats"][contacte] = []
+                self._interactuar_xat(contacte)
+            elif seleccio == i+1:
+                contacte = self._afegir_contacte()
+                self.xarxes_socials["xats"][contacte] = []
                 self._interactuar_xat(contacte)
             else:
                 print("Selecció no vàlida.")
@@ -163,9 +169,9 @@ class Usuari:
             if resposta == "si":
                 self._afegir_contacte()
             if resposta == "no":
-                return
-                
-
+                break
+    #----------------------------------------------------------------------------            
+    #no calen aquestes diria
     def afegir_medicacio(self):
         medicacio = input("")
         self.dades_mediques["medicacions"].append(medicacio)
@@ -180,6 +186,7 @@ class Usuari:
     def veure_medicacions(self):
         """Devuelve la lista de medicaciones."""
         return self.dades_mediques["medicacions"]
+    #----------------------------------------------------------------------------
     
 # Validació de correu electrònic
 def validar_correu(correu):

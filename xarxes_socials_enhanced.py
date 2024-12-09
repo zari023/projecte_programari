@@ -258,12 +258,27 @@ def gestionar_grups(usuari):
 
                 elif opcio_grup == "2":
                     # Afegir participant
-                    nou_participant = input("Nom del participant a afegir: ")
-                    if nou_participant not in detalls_grup["participants"]:
-                        detalls_grup["participants"].append(nou_participant)
-                        print(f"{nou_participant} afegit al grup.")
-                    else:
-                        print("Participant ja és al grup.")
+                    contactes = usuari.xarxes_socials.get("contactes", {})
+                    if not contactes:
+                        print("No tens contactes. Primer afegeix contactes.")
+                        return
+                    contactes = list(usuari.xarxes_socials["contactes"].keys())
+                    print("\nSelecciona un contacte per iniciar un xat:")
+                
+                    for i, contacte in enumerate(contactes, 1):
+                        print(f"{i}. {contacte}")
+
+                    try:
+                        seleccio = int(input("Número de contacte: "))
+                        if 1 <= seleccio <= len(contactes):
+                            contacte = contactes[seleccio - 1]
+                            if contacte not in detalls_grup["participants"]:
+                                detalls_grup["participants"].append(contacte)
+                                print(f"{contacte} afegit al grup.")
+                            else:
+                                print("Participant ja és al grup.")
+                    except ValueError:
+                        print("Entrada no vàlida. Si us plau, selecciona un número.")
 
                 elif opcio_grup == "3":
                     # Sortir del grup
