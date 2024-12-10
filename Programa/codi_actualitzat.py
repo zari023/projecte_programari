@@ -1,10 +1,10 @@
 import re
 from datetime import datetime
-from xarxes_socials_functions import *
-from xarxes_socials_enhanced import *
+from Programa.xarxes_socials_functions import *
+from Programa.xarxes_socials_enhanced import *
 import csv
 import random
-from classes import *
+from Programa.classes import *
 
 import json
 
