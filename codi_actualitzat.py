@@ -4,243 +4,8 @@ from xarxes_socials_functions import *
 from xarxes_socials_enhanced import *
 import csv
 import random
-
-
-# Classe Usuari
-class Usuari:
-    def __init__(self, id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, dades_mediques=None, notificacions=None, monitoratge=None, xarxes_socials=None):
-        self.id = id
-        self.telefon = telefon
-        self.sexe = sexe
-        self.nom = nom
-        self.cognom1 = cognom1
-        self.cognom2 = cognom2
-        self.dia = dia
-        self.mes = mes
-        self.anyy = anyy
-        self.correu = correu
-        self.password = password
-        self.registre_medic_complet = False
-        self.dades_mediques = dades_mediques
-        self.notificacions = {
-            "missatges": [],
-            "trucades": [],
-            "cites": [],
-            "recordatoris": [],
-        }
-        self.monitoratge = None  # El metge que monitoritza
-        self.xarxes_socials = {
-            "contactes": {},  # Unified contacts dictionary
-            "xats": {},  # Chats with each contact
-            "trucades": [],
-            "grups": {}
-        }
-
-    def __str__(self):
-        return f"Usuari: {self.nom} {self.cognom1} {self.cognom2}, Telèfon: {self.telefon}, Sexe: {self.sexe}, Data Naixement: {self.dia}/{self.mes}/{self.anyy}, Correu: {self.correu}"
-    def gestionar_contactes(self):
-        """Gestiona la llista de contactes"""
-        while True:
-            print("\n--- Gestió de Contactes ---")
-            print("1. Veure contactes")
-            print("2. Afegir contacte")
-            print("3. Tornar")
-            
-            opcio = input("Selecciona una opció: ")
-            
-            if opcio == "1":
-                self._mostrar_contactes()
-            elif opcio == "2":
-                self._afegir_contacte()
-            elif opcio == "3":
-                break
-            else:
-                print("Opció no vàlida.")
-
-    def _mostrar_contactes(self):
-        """Mostra tots els contactes"""
-        if not self.xarxes_socials["contactes"]:
-            print("No tens cap contacte.")
-            return
-        
-        print("\n--- Els teus Contactes ---")
-        for nom, detalls in self.xarxes_socials["contactes"].items():
-            print(f"Nom: {nom}")
-            print(f"Telèfon: {detalls.get('telefon', 'No disponible')}")
-            print(f"Correu: {detalls.get('correu', 'No disponible')}")
-            print("---")
-
-    def _afegir_contacte(self):
-        """Afegeix un nou contacte"""
-        nom = input("Introdueix el nom del contacte: ")
-        
-        # Comprova si el contacte ja existeix
-        if nom in self.xarxes_socials["contactes"]:
-            print(f"El contacte {nom} ja existeix.")
-            return
-        
-        telefon = input("Introdueix el telèfon (opcional): ")
-        correu = input("Introdueix el correu (opcional): ")
-        
-        # Afegeix el contacte
-        self.xarxes_socials["contactes"][nom] = {
-            "telefon": telefon,
-            "correu": correu,
-            "xats": []  # Historial de xats amb aquest contacte
-        }
-        print(f"Contacte {nom} afegit!")
-        return nom
-
-    def gestionar_xats(self):
-        """Gestiona els xats de l'usuari, similar a WhatsApp"""
-        while True:
-            print("\n--- Xats ---")
-            if not self.xarxes_socials["xats"] or not self.xarxes_socials["contactes"]:
-                print("No tens cap xat. Vols iniciar un nou xat?")
-                self._preguntar_afegir_contacte()
-                
-
-            # Mostrar la llista de xats
-            print("\nSelecciona un xat o inicia un de nou:")
-            xats = []
-            if self.xarxes_socials["xats"]:
-                xats = list(self.xarxes_socials["xats"].keys())
-                for i, contacte in enumerate(xats, 1):
-                    print(f"{i}. {contacte}")
-            print(f"{len(xats) + 1}. Iniciar un nou xat")
-            print(f"{len(xats) + 2}. Tornar al menú principal")
-            
-            try:
-                seleccio = int(input("Selecciona una opció: "))
-                if 1 <= seleccio <= len(xats):
-                    contacte = xats[seleccio - 1]
-                    self._interactuar_xat(contacte)
-                elif seleccio == len(xats) + 1:
-                    self._enviar_missatge_nou()
-                elif seleccio == len(xats) + 2:
-                    break
-                else:
-                    print("Opció no vàlida.")
-            except ValueError:
-                print("Entrada no vàlida. Si us plau, selecciona un número.")
-
-    def _interactuar_xat(self, contacte):
-        #FARIA QUE FINS QUE NO VULGUI SORTIR NO SURTI DEL XAT
-        """Permet interactuar amb un xat existent"""
-        print(f"\n--- Xat amb {contacte} ---")
-        missatges = self.xarxes_socials["xats"].get(contacte, [])
-        for missatge in missatges:
-            print(missatge)
-
-        missatge_nou = input(f"Missatge per {contacte} (buit per tornar): ").strip()
-        if missatge_nou:
-            self.xarxes_socials["xats"][contacte].append(f"Tu: {missatge_nou}")
-            print("Missatge enviat!")
-
-    def _enviar_missatge_nou(self):
-        """Inicia un nou xat seleccionant un contacte"""
-        if not self.xarxes_socials["contactes"]:
-            print("No tens contactes disponibles per iniciar un xat.")
-            self._preguntar_afegir_contacte()
-            return
-
-        contactes = list(self.xarxes_socials["contactes"].keys())
-        print("\nSelecciona un contacte per iniciar un xat:")
-        for i, contacte in enumerate(contactes, 1):
-            print(f"{i}. {contacte}")
-        print(f"{i+1}. Afegir nou contacte")
-
-        try:
-            seleccio = int(input("Número de contacte: "))
-            if 1 <= seleccio <= len(contactes):
-                contacte = contactes[seleccio - 1]
-                if contacte not in self.xarxes_socials["xats"]:
-                    self.xarxes_socials["xats"][contacte] = []
-                self._interactuar_xat(contacte)
-            elif seleccio == i+1:
-                contacte = self._afegir_contacte()
-                self.xarxes_socials["xats"][contacte] = []
-                self._interactuar_xat(contacte)
-            else:
-                print("Selecció no vàlida.")
-        except ValueError:
-            print("Entrada no vàlida. Si us plau, selecciona un número.")
-    def _preguntar_afegir_contacte(self):
-        """Pregunta a l'usuari si vol afegir un contacte"""
-        while True:
-            resposta = input("Vols afegir un contacte? (Si/No): ").strip().lower()
-            if resposta == "si":
-                self._afegir_contacte()
-            if resposta == "no":
-                break
-    #----------------------------------------------------------------------------            
-    #no calen aquestes diria
-    def afegir_medicacio(self):
-        medicacio = input("")
-        self.dades_mediques["medicacions"].append(medicacio)
-
-    def eliminar_medicacio(self, medicacio):
-        """Elimina una medicación del usuario."""
-        if medicacio in self.dades_mediques["medicacions"]:
-            self.dades_mediques["medicacions"].remove(medicacio)
-        else:
-            print(f"La medicació '{medicacio}' no existeix.")
-
-    def veure_medicacions(self):
-        """Devuelve la lista de medicaciones."""
-        return self.dades_mediques["medicacions"]
-    #----------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-# Classe Metge
-class Metge:
-    def __init__(self, DNI, nom, cognom1, cognom2, telefon, hospital, numColegiat, especialitat):
-        self.DNI = DNI
-        self.nom = nom
-        self.cognom1 = cognom1
-        self.cognom2 = cognom2
-        self.telefon = telefon
-        self.hospital = hospital
-        self.numColegiat = numColegiat
-        self.especialitat = especialitat
-
-    def __str__(self):
-        return f"Dr. {self.nom} {self.cognom1} {self.cognom2} ({self.especialitat}) - {self.hospital}"
-
-# Classe DadesMediques
-class DadesMediques:
-    def __init__(self, idUsuari, medicacions, altura, pes, alergies):
-        self.idUsuari = idUsuari
-        self.medicacions = medicacions  # Llista de tuples (medicació, quantitat)
-        self.altura = altura
-        self.pes = pes
-        self.alergies = alergies  # Llista d'al·lèrgies
-
-    def __str__(self):
-        return f"Usuari: {self.idUsuari}, Medicacions: {self.medicacions}, Alçada: {self.altura}, Pes: {self.pes}, Al·lèrgies: {self.alergies}"
-
-# Classe Cita
-class Cita:
-    def __init__(self, idVisita, data, tipusVisita, prescripcions, idUsuari, DNI_metge):
-        self.idVisita = idVisita
-        self.data = data
-        self.tipusVisita = tipusVisita  # "online" o "presencial"
-        self.prescripcions = prescripcions  # Llista de prescripcions
-        self.idUsuari = idUsuari
-        self.DNI_metge = DNI_metge
-
-    def __str__(self):
-        prescripcions_str = ", ".join(self.prescripcions)
-        return f"Cita {self.idVisita} - Data: {self.data}, Tipus: {self.tipusVisita}, Prescripcions: {prescripcions_str}, Usuari: {self.idUsuari}, Metge: {self.DNI_metge}"
+from classes import *
+import json
 
 
 def generar_id():
@@ -249,9 +14,9 @@ def generar_id():
 # Carregar metges
 def carregar_metges(file_path):
     metges = []
-    with open(file_path, mode='r', encoding='latin-1') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        dades = json.load(file)
+        for row in dades:
             metge = Metge(
                 DNI=row['DNI'],
                 nom=row['nom'],
@@ -265,33 +30,35 @@ def carregar_metges(file_path):
             metges.append(metge)
     return metges
 
-# Filtrar dades mediques per ID d'usuari
-def carregar_dades_mediques(file_path, idUsuari):
-    with open(file_path, mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            print("              ", idUsuari, row['ID_Usuari'])
-            if row['ID_Usuari'] == (idUsuari):
-                medicacions = eval(row['Medicacions'])
-                alergies = eval(row['Alergies'])
-                dades = DadesMediques(
-                    idUsuari=row['ID_Usuari'],
-                    medicacions=medicacions,
-                    altura=row['Altura'],
-                    pes=row['Pes'],
-                    alergies=alergies
-                )
-    return dades
 
+def carregar_dades_mediques(ruta_json, id_usuari):
+    try:
+        with open(ruta_json, 'r', encoding='utf-8') as file:
+            dades = json.load(file)
+        # Filtrar dades per ID_Usuari
+        for row in dades:
+            if int(row["ID_Usuari"]) == int(id_usuari):
+                print(row["ID_Usuari"], row['Malalties'],row["Medicacions"], row["Altura"], row["Pes"], row["Alergies"])
+                return DadesMediques(row["ID_Usuari"], row["Medicacions"], row["Altura"], row["Pes"], row["Alergies"])
+            
+        return DadesMediques(id_usuari)  
+        # Retorna None si no es troben dades per aquest usuari
+        return None
+    except FileNotFoundError:
+        print(f"Error: No s'ha trobat el fitxer {ruta_json}.")
+        return None
+    except json.JSONDecodeError:
+        print("Error: Format JSON invàlid.")
+        return None
+
+# Filtrar cites per ID d'usuari
 # Filtrar cites per ID d'usuari
 def carregar_cites(file_path, idUsuari):
     cites = []
     with open(file_path, mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            print(row['idUsuari'], str(idUsuari), "CITAAAAAAAAAAAAAAA")
-            if row['idUsuari'] == str(idUsuari):
-                #prescripcions = eval(row['prescripcions'])
+        dades = json.load(file)
+        for row in dades:
+            if str(row['idUsuari']) == str(idUsuari):
                 cites.append(Cita(
                     idVisita=row['idVisita'],
                     data=row['data'],
@@ -306,8 +73,8 @@ def carregar_cites(file_path, idUsuari):
 def carregar_usuaris(file_path):
     usuaris = []
     with open(file_path, mode='r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
+        dades = json.load(file)
+        for row in dades:
             usuari = Usuari(
                 id=row['ID'],
                 telefon=row['Telefon'],
@@ -319,7 +86,8 @@ def carregar_usuaris(file_path):
                 mes=row['Mes'],
                 anyy=row['Any'],
                 correu=row['Correu'],
-                password=row['Password']
+                password=row['Password'],
+                registre_medic_complet=bool(int(row['Registre_Medic']))
             )
             usuaris.append(usuari)
     return usuaris
@@ -331,21 +99,96 @@ def guardar_usuari(file_path, usuari):
         writer.writerow([
             usuari.id, usuari.telefon, usuari.sexe, usuari.nom,
             usuari.cognom1, usuari.cognom2, usuari.dia, usuari.mes,
-            usuari.anyy, usuari.correu, usuari.password
+            usuari.anyy, usuari.correu, usuari.password, usuari.registre_medic_complet
         ])
 
+def introduir_medicaments():
+    medicaments = []  
 
+    while True:
+        # Demanem el nom del medicament
+        nom = input("Introdueix el nom del medicament (o 'fi' per acabar): ").strip()
 
+        if nom.lower() == 'fi':
+            break  # Si l'usuari escriu 'fi', acabem el bucle
 
+        # Demanem la quantitat/dosi
+        quantitat = input(f"Introdueix la quantitat/dosi de {nom}: ").strip()
 
+        # Comprovem que la dosi no estigui buida
+        if not quantitat:
+            print("La dosi no pot estar buida. Prova-ho de nou.")
+            continue  # Si no s'introdueix una dosi, continuem amb el bucle
 
+        # Guardem el medicament com una tupla (nom, quantitat)
+        medicaments.append((nom, quantitat))
 
+    return medicaments
 
-
-
-
-
-
+def gestio_dades_mediques(usuari):
+    while True:
+        print("\n--- Dades Mèdiques ---")
+        print("1. Visualitzar Dades Mèdiques")
+        print("2. Editar Dades Mèdiques")
+        print("3. Tornar al menú principal")
+        
+        opcio = input("Selecciona una opció: ")
+        
+        if opcio == "1":
+            # Visualitzar dades mèdiques
+            print(usuari.dades_mediques)
+        
+        elif opcio == "2":
+            # Editar dades mèdiques
+            while True:
+                print("\nQuè vols editar?")
+                print("1. Medicacions")
+                print("2. Altura")
+                print("3. Pes")
+                print("4. Al·lèrgies")
+                print("5. Tornar")
+                
+                subOpcio = input("Selecciona una opció: ")
+                
+                if subOpcio == "1":
+                    # Editar medicacions
+                    #POTSER ESTARIA GUAY DONAR OPCIÓ PER AFEGIR MEDICACIONS
+                    print("Medicacions actuals:", usuari.dades_mediques.get_medicacions())
+                    medicacions = introduir_medicaments()
+                    usuari.dades_mediques.set_medicacions(medicacions)
+                    print("Medicacions actualitzades.")
+                
+                elif subOpcio == "2":
+                    # Editar altura
+                    nova_altura = float(input("Introdueix nova altura (en cm): "))
+                    usuari.dades_mediques.set_altura(nova_altura)
+                    print("Altura actualitzada.")
+                
+                elif subOpcio == "3":
+                    # Editar pes
+                    nou_pes = float(input("Introdueix nou pes (en kg): "))
+                    usuari.dades_mediques.set_pes(nou_pes)
+                    print("Pes actualitzat.")
+                
+                elif subOpcio == "4":
+                    # Editar al·lèrgies
+                    print("Al·lèrgies actuals:", usuari.dades_mediques.get_alergies())
+                    noves_alergies = input("Introdueix noves al·lèrgies (separades per ;): ")
+                    alergies = noves_alergies.split(';')
+                    usuari.dades_mediques.set_alergies(alergies)
+                    print("Al·lèrgies actualitzades.")
+                
+                elif subOpcio == "5":
+                    break
+                
+                else:
+                    print("Opció no vàlida. Si us plau, tria una opció del menú.")
+        
+        elif opcio == "3":
+            break
+        
+        else:
+            print("Opció no vàlida. Si us plau, tria una opció del menú.")
 
 
 # Validació de correu electrònic
@@ -392,32 +235,45 @@ def mostrar_notificacions(usuari):
 def completar_registre_medic(usuari):
     print("\n--- Completar el Registre Mèdic ---")
     
-    # Malalties prèvies
     malalties = input("Introdueix les teves malalties prèvies (separades per comes, o pressiona Enter si no tens cap): ")
-    usuari.dades_mediques["Malalties Prèvies"] = malalties.split(",") if malalties else []
-
-    # Alergies
+    malalties_llista = malalties.split(",") if malalties else []
+    usuari.dades_mediques.set_malalties_previes(malalties_llista)
+    
+    # Al·lèrgies
     al_lergies = input("Introdueix les teves al·lèrgies (separades per comes, o pressiona Enter si no tens cap): ")
-    usuari.dades_mediques["Al·lèrgies"] = al_lergies.split(",") if al_lergies else []
-
+    alergies_llista = al_lergies.split(",") if al_lergies else []
+    usuari.dades_mediques.set_alergies(alergies_llista)
+    
     # Alçada
-    alçada = input("Introdueix la teva alçada (en cm): ")
-    usuari.dades_mediques["Alçada"] = alçada
-
+    while True:
+        try:
+            alçada = float(input("Introdueix la teva alçada (en cm): "))
+            usuari.dades_mediques.set_altura(alçada)
+            break
+        except ValueError:
+            print("Si us plau, introdueix un valor numèric vàlid.")
+    
     # Pes
-    pes = input("Introdueix el teu pes (en kg): ")
-    usuari.dades_mediques["Pes"] = pes
-
+    while True:
+        try:
+            pes = float(input("Introdueix el teu pes (en kg): "))
+            usuari.dades_mediques.set_pes(pes)
+            break
+        except ValueError:
+            print("Si us plau, introdueix un valor numèric vàlid.")
+    
     # Medicació
     medicacions = []
     while True:
         medicacio = input("Introdueix el nom de la medicació que estàs prenent (o pressiona Enter per acabar): ")
         if medicacio == "":
             break
-        dosi = input(f"Introdueix la dosi de {medicacio} en mg: ")
-        medicacions.append({"medicacio": medicacio, "dosi": dosi})
+        
+        dosi = input(f"Introdueix la dosi de {medicacio}: ")
+        medicacions.append((medicacio, dosi))
     
-    usuari.dades_mediques["Medications"] = medicacions
+    # Actualitzar medicacions a la classe DadesMediques
+    usuari.dades_mediques.set_medicacions(tuple(medicacions))
     
     # Concertar cita amb el metge
     metge = "Dr. Joan Pérez"  # Nom fictici del metge
@@ -498,33 +354,73 @@ def menu_app(usuari, des_de_registre):
         if not usuari.registre_medic_complet:
             print("1. Completar el registre mèdic")
         else:
-            print("1. Dades mèdiques")
+            print("1. Menú mèdic")
         print("2. Xarxes socials")
         print("3. Perfil")
         print("4. Emergència")
         print("5. Sortir")
         opcio = input("Selecciona una opció: ")
-
         if opcio == "1":
             if not usuari.registre_medic_complet:
                 cita = completar_registre_medic(usuari)
                 print(f"Cita concertada: {cita}")
-                usuari.registre_medic_complet = True
+                usuari.registre_medic_complet = 1
             else:
-                while True:    
-                    print("\n--- Dades Mèdiques ---")
-                    print("1. Visualitzar Dades Mèdiques")
-                    print("2. Editar Dades Mèdiques")
-                    print("3. Tornar al menú principal")
-                    opcio = input("Selecciona una opció: ")
-                    
-                    if opcio == "1":
-                        print(usuari.dades_mediques)
-                    if opcio == "2":
-                        #poder editar dades mèdiques
-                        pass
-                    if opcio == "3":
-                        break
+                print("\n--- Menú Mèdic ---")
+                print("1. Dades Mèdiques")
+                print("2. Pastilles ")
+                print("3. Activitat Física")
+                print("4. Cites")
+                opcio_medic = input("Selecciona una opció: ")
+                if opcio_medic == "1":
+                    gestio_dades_mediques(usuari)
+                elif opcio_medic == "2":
+                    while True:    
+                            print("\n--- Pastilles ---")
+                            print("1. Visualitzar Dades Mèdiques")
+                            print("2. Editar Dades Mèdiques")
+                            print("3. Tornar al menú principal")
+                            opcio = input("Selecciona una opció: ")
+                            
+                            if opcio == "1":
+                                print(usuari.dades_mediques)
+                            if opcio == "2":
+                                #poder editar dades mèdiques
+                                pass
+                            if opcio == "3":
+                                break
+                elif opcio_medic == "3":
+                    while True:    
+                            print("\n--- Activitat Física ---")
+                            print("1. Visualitzar Dades Mèdiques")
+                            print("2. Editar Dades Mèdiques")
+                            print("3. Tornar al menú principal")
+                            opcio = input("Selecciona una opció: ")
+                            
+                            if opcio == "1":
+                                print(usuari.dades_mediques)
+                            if opcio == "2":
+                                #poder editar dades mèdiques
+                                pass
+                            if opcio == "3":
+                                break
+                elif opcio_medic == "4":
+                    while True:    
+                            print("\n--- Cites ---")
+                            print("1. Visualitzar Dades Mèdiques")
+                            print("2. Editar Dades Mèdiques")
+                            print("3. Tornar al menú principal")
+                            opcio = input("Selecciona una opció: ")
+                            
+                            if opcio == "1":
+                                print(usuari.dades_mediques)
+                            if opcio == "2":
+                                #poder editar dades mèdiques
+                                pass
+                            if opcio == "3":
+                                break
+                else:
+                    print("Opció no vàlida")
                     
         elif opcio == "2":
             while True:
@@ -585,8 +481,8 @@ def menu_app(usuari, des_de_registre):
 # Programa principal
 
 def main():
-    usuaris = carregar_usuaris('usuaris.csv')
-    metges = carregar_metges('metges.csv')
+    usuaris = carregar_usuaris('usuaris.json')
+    metges = carregar_metges('metges.json')
 
     print("\n** Benvingut al sistema **")
 
@@ -605,8 +501,8 @@ def main():
                 print(f"Benvingut, {usuari.nom}!")
 
                 # Carregar dades mediques i cites del usuari
-                dades_mediques = carregar_dades_mediques('dades_mediques.csv', usuari.id)
-                cites = carregar_cites('cites.csv', usuari.id)
+                dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.id)
+                cites = carregar_cites('cites.json', usuari.id)
                 usuari.dades_mediques = dades_mediques
 
                 """print("\\nLes teves dades mèdiques:")
@@ -616,7 +512,7 @@ def main():
                 print("\\nLes teves cites programades:")
                 for c in cites:
                     print(c)"""
-                usuari.registre_medic_complet=True
+                print(usuari.registre_medic_complet)
                 menu_app(usuari, des_de_registre=False)
             else:
                 print("Credencials incorrectes!")
@@ -651,7 +547,7 @@ def main():
             if not existent:
                 nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password)
                 usuaris.append(nou_usuari)
-                guardar_usuari('usuaris.csv', nou_usuari)
+                guardar_usuari('usuaris.json', nou_usuari)
 
                 print(f"Registre complet! El teu ID és {id}")
                 menu_app(nou_usuari, des_de_registre=True)
