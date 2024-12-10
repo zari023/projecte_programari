@@ -2,11 +2,14 @@ import re
 from datetime import datetime
 from xarxes_socials_functions import *
 from xarxes_socials_enhanced import *
+import csv
+import random
 
 
 # Classe Usuari
 class Usuari:
-    def __init__(self, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password):
+    def __init__(self, id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, dades_mediques=None, notificacions=None, monitoratge=None, xarxes_socials=None):
+        self.id = id
         self.telefon = telefon
         self.sexe = sexe
         self.nom = nom
@@ -18,7 +21,7 @@ class Usuari:
         self.correu = correu
         self.password = password
         self.registre_medic_complet = False
-        self.dades_mediques = {}
+        self.dades_mediques = dades_mediques
         self.notificacions = {
             "missatges": [],
             "trucades": [],
@@ -187,7 +190,164 @@ class Usuari:
         """Devuelve la lista de medicaciones."""
         return self.dades_mediques["medicacions"]
     #----------------------------------------------------------------------------
-    
+
+
+
+
+
+
+
+
+
+
+
+# Classe Metge
+class Metge:
+    def __init__(self, DNI, nom, cognom1, cognom2, telefon, hospital, numColegiat, especialitat):
+        self.DNI = DNI
+        self.nom = nom
+        self.cognom1 = cognom1
+        self.cognom2 = cognom2
+        self.telefon = telefon
+        self.hospital = hospital
+        self.numColegiat = numColegiat
+        self.especialitat = especialitat
+
+    def __str__(self):
+        return f"Dr. {self.nom} {self.cognom1} {self.cognom2} ({self.especialitat}) - {self.hospital}"
+
+# Classe DadesMediques
+class DadesMediques:
+    def __init__(self, idUsuari, medicacions, altura, pes, alergies):
+        self.idUsuari = idUsuari
+        self.medicacions = medicacions  # Llista de tuples (medicació, quantitat)
+        self.altura = altura
+        self.pes = pes
+        self.alergies = alergies  # Llista d'al·lèrgies
+
+    def __str__(self):
+        return f"Usuari: {self.idUsuari}, Medicacions: {self.medicacions}, Alçada: {self.altura}, Pes: {self.pes}, Al·lèrgies: {self.alergies}"
+
+# Classe Cita
+class Cita:
+    def __init__(self, idVisita, data, tipusVisita, prescripcions, idUsuari, DNI_metge):
+        self.idVisita = idVisita
+        self.data = data
+        self.tipusVisita = tipusVisita  # "online" o "presencial"
+        self.prescripcions = prescripcions  # Llista de prescripcions
+        self.idUsuari = idUsuari
+        self.DNI_metge = DNI_metge
+
+    def __str__(self):
+        prescripcions_str = ", ".join(self.prescripcions)
+        return f"Cita {self.idVisita} - Data: {self.data}, Tipus: {self.tipusVisita}, Prescripcions: {prescripcions_str}, Usuari: {self.idUsuari}, Metge: {self.DNI_metge}"
+
+
+def generar_id():
+    return random.randint(1000, 9999)
+
+# Carregar metges
+def carregar_metges(file_path):
+    metges = []
+    with open(file_path, mode='r', encoding='latin-1') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            metge = Metge(
+                DNI=row['DNI'],
+                nom=row['nom'],
+                cognom1=row['cognom1'],
+                cognom2=row['cognom2'],
+                telefon=row['telefon'],
+                hospital=row['hospital'],
+                numColegiat=row['numColegiat'],
+                especialitat=row['especialitat']
+            )
+            metges.append(metge)
+    return metges
+
+# Filtrar dades mediques per ID d'usuari
+def carregar_dades_mediques(file_path, idUsuari):
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            print("              ", idUsuari, row['ID_Usuari'])
+            if row['ID_Usuari'] == (idUsuari):
+                medicacions = eval(row['Medicacions'])
+                alergies = eval(row['Alergies'])
+                dades = DadesMediques(
+                    idUsuari=row['ID_Usuari'],
+                    medicacions=medicacions,
+                    altura=row['Altura'],
+                    pes=row['Pes'],
+                    alergies=alergies
+                )
+    return dades
+
+# Filtrar cites per ID d'usuari
+def carregar_cites(file_path, idUsuari):
+    cites = []
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            print(row['idUsuari'], str(idUsuari), "CITAAAAAAAAAAAAAAA")
+            if row['idUsuari'] == str(idUsuari):
+                #prescripcions = eval(row['prescripcions'])
+                cites.append(Cita(
+                    idVisita=row['idVisita'],
+                    data=row['data'],
+                    tipusVisita=row['tipusVisita'],
+                    prescripcions=row['prescripcions'],
+                    idUsuari=row['idUsuari'],
+                    DNI_metge=row['DNI_metge']
+                ))
+    return cites
+
+# Cargar usuarios desde CSV
+def carregar_usuaris(file_path):
+    usuaris = []
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            usuari = Usuari(
+                id=row['ID'],
+                telefon=row['Telefon'],
+                sexe=row['Sexe'],
+                nom=row['Nom'],
+                cognom1=row['Cognom1'],
+                cognom2=row['Cognom2'],
+                dia=row['Dia'],
+                mes=row['Mes'],
+                anyy=row['Any'],
+                correu=row['Correu'],
+                password=row['Password']
+            )
+            usuaris.append(usuari)
+    return usuaris
+
+# Guardar un nuevo usuario en el CSV
+def guardar_usuari(file_path, usuari):
+    with open(file_path, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            usuari.id, usuari.telefon, usuari.sexe, usuari.nom,
+            usuari.cognom1, usuari.cognom2, usuari.dia, usuari.mes,
+            usuari.anyy, usuari.correu, usuari.password
+        ])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Validació de correu electrònic
 def validar_correu(correu):
     return re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None
@@ -359,8 +519,7 @@ def menu_app(usuari, des_de_registre):
                     opcio = input("Selecciona una opció: ")
                     
                     if opcio == "1":
-                        for clau, valor in usuari.dades_mediques.items():
-                            print(f"{clau}: {valor}")
+                        print(usuari.dades_mediques)
                     if opcio == "2":
                         #poder editar dades mèdiques
                         pass
@@ -423,30 +582,49 @@ def menu_app(usuari, des_de_registre):
         else:
             print("Opció no vàlida. Torna-ho a intentar.")
 
-# Funció principal
-def main():
-    usuaris = []
+# Programa principal
 
-    print("Benvingut al sistema!")
+def main():
+    usuaris = carregar_usuaris('usuaris.csv')
+    metges = carregar_metges('metges.csv')
+
+    print("\n** Benvingut al sistema **")
+
     while True:
         print("\n1. Iniciar sessió")
         print("2. Registrar-se")
         print("3. Sortir")
         opcio = input("Selecciona una opció: ")
 
-        if opcio == "1":  # Iniciar sessió
-            usuari_input = input("Introdueix el teu telèfon o correu electrònic: ")
+        if opcio == "1":
+            correu = input("Introdueix el teu correu electrònic: ")
             password = input("Introdueix la contrasenya: ")
+            usuari = next((u for u in usuaris if u.correu == correu and u.password == password), None)
 
-            usuari = next((u for u in usuaris if (u.telefon == usuari_input or u.correu == usuari_input) and u.password == password), None)
             if usuari:
                 print(f"Benvingut, {usuari.nom}!")
+
+                # Carregar dades mediques i cites del usuari
+                dades_mediques = carregar_dades_mediques('dades_mediques.csv', usuari.id)
+                cites = carregar_cites('cites.csv', usuari.id)
+                usuari.dades_mediques = dades_mediques
+
+                """print("\\nLes teves dades mèdiques:")
+                for d in dades_mediques:
+                    print(d)
+
+                print("\\nLes teves cites programades:")
+                for c in cites:
+                    print(c)"""
+                usuari.registre_medic_complet=True
                 menu_app(usuari, des_de_registre=False)
             else:
-                print("Telèfon/correu o contrasenya incorrecta!")
+                print("Credencials incorrectes!")
 
-        elif opcio == "2":  # Registrar-se
-            print("\n** Registre **")
+        elif opcio == "2":
+            existent = False
+            print("\n** Registre d'usuari **")
+            id = generar_id()
             telefon = introduir_telefon()
             sexe = input("Introdueix el teu sexe: ")
             nom = input("Introdueix el teu nom: ")
@@ -466,12 +644,20 @@ def main():
                 correu = input("Introdueix un correu electrònic vàlid: ")
             password = input("Introdueix la teva contrasenya: ")
 
-            nou_usuari = Usuari(telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password)
-            usuaris.append(nou_usuari)
-            print("Registre completat!")
+            for usuari in usuaris:
+                if usuari.correu == correu:
+                    print("Usuari ja existent, inicia sessió")
+                    existent = True
+            if not existent:
+                nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password)
+                usuaris.append(nou_usuari)
+                guardar_usuari('usuaris.csv', nou_usuari)
+
+                print(f"Registre complet! El teu ID és {id}")
+                menu_app(nou_usuari, des_de_registre=True)
 
         elif opcio == "3":
-            print("Sortint...")
+            print("Sortint... Adéu!")
             break
 
 if __name__ == "__main__":
