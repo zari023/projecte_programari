@@ -51,7 +51,7 @@ def carregar_disponibilitat(nom_arxiu, llista_metges):
             # Buscar metge amb el mateix dni
             for metge in llista_metges:
                 if metge.get_DNI == dni:
-                    metge.set_disponibilitat = disponibilitat
+                    metge.set_disponibilitat(disponibilitat)
                     break
 
         print("Disponibilitat carregada correctament.")
@@ -140,15 +140,53 @@ def carregar_usuaris(file_path, metges):
             usuaris.append(usuari)
     return usuaris
 
-# Guardar un nuevo usuario en el CSV
 def guardar_usuari(file_path, usuari):
-    with open(file_path, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow([
-            usuari.get_id, usuari.get_telefon, usuari.get_sexe, usuari.get_nom,
-            usuari.get_cognom1, usuari.get_cognom2, usuari.get_dia, usuari.get_mes,
-            usuari.get_anyy, usuari.get_correu, usuari.password, usuari.registre_medic_complet
-        ])
+    """
+    Añade o actualiza un usuario en el archivo JSON.
+    
+    :param file_path: Ruta del archivo JSON donde se guardarán los datos.
+    :param usuari: Objeto con los datos del usuario a guardar.
+    """
+    # Leer los datos existentes en el archivo (o inicializar una lista vacía si el archivo no existe)
+    try:
+        with open(file_path, mode='r', encoding='utf-8') as file:
+            dades = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        dades = []
+
+    # Crear el nuevo usuario en el formato JSON especificado
+    nou_usuari = {
+        "ID": int(usuari.get_id),
+        "Telefon": list(usuari.get_telefon),
+        "Sexe": str(usuari.get_sexe),
+        "Nom": str(usuari.get_nom),
+        "Cognom1": str(usuari.get_cognom1),
+        "Cognom2": str(usuari.get_cognom2),
+        "Dia": int(usuari.get_dia),
+        "Mes": str(usuari.get_mes),
+        "Any": int(usuari.get_anyy),
+        "Correu": str(usuari.get_correu),
+        "Password": str(usuari.get_password),
+        "Registre_Medic": int(usuari.get_registre_medic_complet)
+    }
+
+    # Buscar si el usuario ya existe por su ID
+    user_exists = False
+    for i, existing_user in enumerate(dades):
+        if existing_user["ID"] == nou_usuari["ID"]:
+            # Si el usuario ya existe, se actualizan los datos
+            dades[i] = nou_usuari
+            print(dades[i], nou_usuari)
+            user_exists = True
+            break
+
+    if not user_exists:
+        # Si el usuario no existe, se añade al final
+        dades.append(nou_usuari)
+
+    # Guardar los datos actualizados en el archivo JSON
+    with open(file_path, mode='w', encoding='utf-8') as file:
+        json.dump(dades, file, indent=4, ensure_ascii=False)
 
 def introduir_medicaments():
     medicaments = []  
@@ -237,7 +275,7 @@ def gestio_dades_mediques(usuari):
                                 usuari.get_dades_mediques.set_altura(nova_altura)
                                 break
                             else:
-                                print("L'alçada ha d'estar entre 50 i 300 cm.")
+                                print("L'alçada ha d'estar entre 50 i 320 cm.")
                         except ValueError:
                             print("Si us plau, introdueix un valor enter vàlid per a l'alçada.")
                     print("Altura actualitzada.")
@@ -251,7 +289,7 @@ def gestio_dades_mediques(usuari):
                                 usuari.get_dades_mediques.set_pes(nou_pes)
                                 break
                             else:
-                                print("El pes ha d'estar entre 10 i 500 kg.")
+                                print("El pes ha d'estar entre 10 i 300 kg.")
                         except ValueError:
                             print("Si us plau, introdueix un valor enter vàlid per al pes.")
                     print("Pes actualitzat.")
@@ -339,24 +377,24 @@ def completar_registre_medic(usuari, medics):
     # Alçada
     while True:
         try:
-            alçada = int(input("Introdueix la teva alçada (en cm, entre 50 i 300): "))
+            alçada = int(input("Introdueix la teva alçada (en cm, entre 50 i 320): "))
             if 50 <= alçada <= 320:  # Rang raonable per a l'alçada en cm
                 usuari.get_dades_mediques.set_altura(alçada)
                 break
             else:
-                print("L'alçada ha d'estar entre 50 i 300 cm.")
+                print("L'alçada ha d'estar entre 50 i 320 cm.")
         except ValueError:
             print("Si us plau, introdueix un valor enter vàlid per a l'alçada.")
 
     # Pes
     while True:
         try:
-            pes = int(input("Introdueix el teu pes (en kg, entre 10 i 500): "))
+            pes = int(input("Introdueix el teu pes (en kg, entre 10 i 300): "))
             if 10 <= pes <= 300:  # Rang raonable per al pes en kg
                 usuari.get_dades_mediques.set_pes(pes)
                 break
             else:
-                print("El pes ha d'estar entre 10 i 500 kg.")
+                print("El pes ha d'estar entre 10 i 300 kg.")
         except ValueError:
             print("Si us plau, introdueix un valor enter vàlid per al pes.")
 
@@ -374,6 +412,7 @@ def completar_registre_medic(usuari, medics):
     # Actualitzar medicacions a la classe DadesMediques
     usuari.get_dades_mediques.set_medicacions(tuple(medicacions))
     demanar_cita(usuari, medics, True)
+    guardar_usuari('usuaris.json', usuari)
 
 def demanar_cita(usuari, medics, registre=False):
     print("\n--- Completar registro del médico ---")
@@ -429,10 +468,10 @@ def demanar_cita(usuari, medics, registre=False):
     # Crear la cita y añadir notificación al usuario
     cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.get_id, medico_seleccionado.get_DNI, medico_seleccionado.get_cognom1)
     notis = usuari.get_notificacions
-    notis = notis["cites"].append(cita)
+    notis["cites"].append(cita)
     usuari.set_notificacions(notis)
     if registre:
-        usuari.get_monitoratge = medico_seleccionado  # Asignamos el médico como quien monitoriza
+        usuari.set_monitoratge(medico_seleccionado)
     
     print("Registre mèdic completat i cita concertada!")
     return cita
@@ -654,7 +693,7 @@ def main():
                 xarxes_socials = carregar_xarxes('xarxes_socials.json', usuari.get_id, usuari.get_nom)
                 notis = usuari.get_notificacions
                 notis['cites'] = cites
-                usuari.set_notificacions()
+                usuari.set_notificacions(notis)
                 usuari.set_dades_mediques(dades_mediques)
                 usuari.set_xarxes_socials(xarxes_socials)
 
@@ -687,7 +726,7 @@ def main():
             password = input("Introdueix la teva contrasenya: ")
 
             for usuari in usuaris:
-                if usuari.correu == correu:
+                if usuari.get_correu == correu:
                     print("Usuari ja existent, inicia sessió")
                     existent = True
             if not existent:
@@ -697,10 +736,12 @@ def main():
 
                 print(f"Registre complet! El teu ID és {id}")
                 menu_app(nou_usuari, metges, des_de_registre=True)
+                usuari = nou_usuari
 
         elif opcio == "3":
             print("Sortint... Adéu!")
             break
+    guardar_usuari('usuaris.json', usuari)
 
 if __name__ == "__main__":
     main()

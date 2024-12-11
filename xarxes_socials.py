@@ -80,8 +80,8 @@ class XarxesSocials:
             print(f"El contacte {nom} ja existeix.")
             return
         
-        telefon = input("Introdueix el telèfon (opcional): ")
-        correu = input("Introdueix el correu (opcional): ")
+        telefon = input("Introdueix el telèfon: ")
+        correu = input("Introdueix el correu: ")
         
         # Afegeix el contacte
         self.contactes[nom] = {
@@ -168,12 +168,11 @@ class XarxesSocials:
             print("Entrada no vàlida. Si us plau, selecciona un número.")
     def _preguntar_afegir_contacte(self):
         """Pregunta a l'usuari si vol afegir un contacte"""
-        while True:
-            resposta = input("Vols afegir un contacte? (Si/No): ").strip().lower()
-            if resposta == "si":
-                self._afegir_contacte()
-            if resposta == "no":
-                break
+        resposta = input("Vols afegir un contacte? (Si/No): ").strip().lower()
+        if resposta == "si":
+            self._afegir_contacte()
+        if resposta == "no":
+            pass
     
 
     def fer_trucada(self):
@@ -218,8 +217,11 @@ class XarxesSocials:
             print("Selecció no vàlida.")
 
     def mostrar_registre_trucades(self):
-        for n in self.trucades:
-            print(n)
+        if self.trucades:
+            for n in self.trucades:
+                print(n)
+        else:
+            print("No tens trucades")
             
     def gestionar_grups(self):
         """Gestió avançada de grups amb exploració i funcionalitats millorades."""
@@ -241,37 +243,7 @@ class XarxesSocials:
             
             if opcio == "1":
                 # Crear nou grup
-                print("\n--- Crear Nou Grup ---")
-                print("Categories disponibles:")
-                for categoria, subcategories in categories_grups.items():
-                    print(f"{categoria}: {', '.join(subcategories)}")
-                
-                categoria = input("Selecciona una categoria principal: ").lower()
-                if categoria not in categories_grups:
-                    print("Categoria no vàlida.")
-                    continue
-                
-                subcategoria = input("Selecciona una subcategoria: ").lower()
-                if subcategoria not in categories_grups[categoria]:
-                    print("Subcategoria no vàlida.")
-                    continue
-                
-                nom_grup = input("Introdueix un nom específic per al grup: ")
-                descripcio = input("Introdueix una descripció del grup: ")
-                
-                # Crear estructura del grup
-                nou_grup = {
-                    "nom": nom_grup,
-                    "categoria": categoria,
-                    "subcategoria": subcategoria,
-                    "descripcio": descripcio,
-                    "participants": [self.id_usuari],
-                    "missatges": []
-                }
-                
-                self.grups[nom_grup] = nou_grup
-                print(f"Grup {nom_grup} creat amb èxit!")
-
+                print("\nNo tens els permisos necessaris per crear un nou grup")
             
             elif opcio == "2":
                 # Explorar grups
@@ -405,7 +377,7 @@ class XarxesSocials:
 
                     elif opcio_grup == "2":
                         # Afegir participant
-                        contactes = self.get("contactes", {})
+                        contactes = self.contactes
                         if not contactes:
                             print("No tens contactes. Primer afegeix contactes.")
                             return
