@@ -1,19 +1,14 @@
 import re
 from datetime import datetime
-from xarxes_socials import *
 import random
 from classes import *
 import json
-
 
 def generar_id_usuari(usuaris):
     while True:
         idd = random.randint(1000, 9999)
         if not any(usuari.get_id == idd for usuari in usuaris):
             return idd
-
-import random
-import json
 
 def generar_id_cita():
     with open("cites.json", "r", encoding="utf-8") as file:
@@ -24,8 +19,6 @@ def generar_id_cita():
         if nou not in ids_existents:
             return nou
 
-
-# Carregar metges
 def carregar_metges(file_path):
     metges = []
     with open(file_path, mode='r', encoding='utf-8') as file:
@@ -101,7 +94,6 @@ def carregar_xarxes(idUsuari, nomUsuari):
                 xarxes.append(xarxa)
     return xarxa
 
-# Filtrar cites per ID d'usuari
 def carregar_cites(file_path, idUsuari):
     cites = []
     with open(file_path, mode='r', encoding='utf-8') as file:
@@ -120,7 +112,6 @@ def carregar_cites(file_path, idUsuari):
                 ))
     return cites
 
-# Cargar usuarios desde CSV
 def carregar_usuaris(file_path, metges):
     usuaris = []
     with open(file_path, mode='r', encoding='utf-8') as file:
@@ -165,10 +156,26 @@ def guardar_cites(cita):
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(current_data, file, ensure_ascii=False, indent=4)
 
-        print(f"Datos guardados correctamente en {file_path}.")
+        print(f"Dades guardades correctament a {file_path}.")
 
     except Exception as e:
-        print(f"Error al guardar el archivo {file_path}: {e}")
+        print(f"Error al guardar l'arxiu {file_path}: {e}")
+
+def tipus_usuari():
+    opciones = {1: "Persona Gran", 2: "Familiar", 3: "Amic", 4: "Personal Sanitari", 5: "Admin"}
+    while True:
+        print("\nSelecciona el tipus d'usuari:")
+        for key, value in opciones.items():
+            print(f"{key}. {value}")
+        try:
+            seleccion = int(input("Introduïu el número corresponent: "))
+            if seleccion in opciones:
+                es_persona_gran = (seleccion == 1)
+                return es_persona_gran, seleccion
+            else:
+                print("Valor incorrecte. Si us plau, selecciona un número del 1 al 5.")
+        except ValueError:
+            print("Entrada invàlida. Si us plau, introdueix un número.")
 
 def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
     try:
@@ -181,23 +188,22 @@ def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
             if medico["dniMetge"] == dni_metge:
                 if fecha_seleccionada in medico["disponibilitat"]:
                     medico["disponibilitat"].remove(fecha_seleccionada)
-                    print(f"Fecha {fecha_seleccionada} eliminada de la disponibilidad del Dr. {dni_metge}")
+                    print(f"Data {fecha_seleccionada} eliminada de la disponibilitat del Dr. {dni_metge}")
                 else:
-                    print(f"Error: La fecha {fecha_seleccionada} no se encuentra en la disponibilidad del médico.")
+                    print(f"Error: La data {fecha_seleccionada} no es troba disponible.")
                 break
         else:
-            print(f"Error: No se encontró un médico con DNI {dni_metge}.")
+            print(f"Error: No existeix cap metge amb DNI {dni_metge}.")
 
         # Escribir los datos actualizados de nuevo en el archivo
         with open(file_path, 'w', encoding='utf-8') as file:
             json.dump(disponibilitat_data, file, ensure_ascii=False, indent=4)
 
-        print("Disponibilidad actualizada correctamente.")
+        print("Disponibilitat actualitzada correctament.")
     except Exception as e:
-        print(f"Error al actualizar la disponibilidad: {e}")
+        print(f"Error al actualitzar la disponibilitat: {e}")
 
 def editar_altura(usuari):
-    """Función para editar la altura de un usuario."""
     while True:
         try:
             nova_altura = float(input("Introdueix nova altura (en cm): "))
@@ -271,16 +277,8 @@ def guardar_usuari(file_path, usuari):
     # Guardar los datos actualizados en el archivo JSON
     with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
-import json
 
 def guardar_dades_mediques(id, dades_med):
-    """
-    Añade o actualiza los datos médicos de un usuario en el archivo JSON.
-    
-    :param ruta_json: Ruta del archivo JSON donde se guardarán los datos médicos.
-    :param dades_med: Objeto DadesMediques con los datos a guardar.
-    """
-    # Leer los datos existentes en el archivo (o inicializar una lista vacía si el archivo no existe)
     try:
         with open("dades_mediques.json", mode='r', encoding='utf-8') as file:
             dades = json.load(file)
@@ -303,7 +301,6 @@ def guardar_dades_mediques(id, dades_med):
         if existing_dades_med["ID_Usuari"] == nou_dades_med["ID_Usuari"]:
             # Si los datos médicos ya existen para el usuario, se actualizan los datos
             dades[i] = nou_dades_med
-            print("Datos médicos actualizados:", dades[i])
             dades_med_exists = True
             break
 
@@ -315,16 +312,7 @@ def guardar_dades_mediques(id, dades_med):
     with open("dades_mediques.json", mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
 
-import json
-
 def guardar_xarxes(id, xarxa):
-    """
-    Añade o actualiza los datos de una red social para un usuario en el archivo JSON.
-    
-    :param file_path: Ruta del archivo JSON donde se guardarán los datos.
-    :param xarxa: Objeto XarxesSocials con los datos a guardar.
-    """
-    # Leer los datos existentes en el archivo (o inicializar una lista vacía si el archivo no existe)
     try:
         with open("xarxes.json", mode='r', encoding='utf-8') as file:
             dades = json.load(file)
@@ -461,12 +449,9 @@ def gestio_dades_mediques(usuari):
             print("Opció no vàlida. Si us plau, tria una opció del menú.")
     guardar_dades_mediques(usuari.get_id, usuari.get_dades_mediques)
 
-
-# Validació de correu electrònic
 def validar_correu(correu):
     return re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None
 
-# Validació data naixement
 def validar_data(dia, mes, anyy):
     mesos_valids = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
     dies_per_mes = {
@@ -487,7 +472,6 @@ def validar_data(dia, mes, anyy):
     except ValueError:
         return False
 
-
 def validar_telefon(tel):
     if len(tel) != 9 or type(tel)!=int:
         print("Número de telèfon incorrecte")
@@ -507,7 +491,6 @@ def introduir_sexe():
         if res == "home" or res == "dona":
             return res
         
-# Mostrar notificacions
 def mostrar_notificacions(usuari):
     print("\n--- Notificacions ---")
     for categoria, notificacions in usuari.get_notificacions.items():
@@ -518,7 +501,6 @@ def mostrar_notificacions(usuari):
         else:
             print(f"{categoria.capitalize()}: No hi ha notificacions.")
 
-# Completar el registre mèdic
 def completar_registre_medic(usuari, medics):
     print("\n--- Completar el Registre Mèdic ---")
     
@@ -551,48 +533,46 @@ def completar_registre_medic(usuari, medics):
     guardar_usuari('usuaris.json', usuari)
 
 def demanar_cita(usuari, medics, registre=False):
-    print("\n--- Completar registro del médico ---")
-    print("Lista de médicos:")
-    
-    # Mostrar todos los médicos disponibles
+    print("\n--- Completar registre mèdic ---")
+    print("Metges disponibles:")
     for i, medic in enumerate(medics):
-        print(f"{i + 1}. Dr {medic.get_cognom1} - Especialidad: {medic.get_especialitat}")
+        print(f"{i + 1}. Dr {medic.get_cognom1} - Especialitat: {medic.get_especialitat}")
     
     # Selección del médico
     while True:
         try:
-            seleccion = int(input("Seleccione un médico por su número: ")) - 1
+            seleccion = int(input("Seleccioni un metge pel seu número: ")) - 1
             if 0 <= seleccion < len(medics):
                 medico_seleccionado = medics[seleccion]
                 break
             else:
-                print("Número fuera de rango. Intente nuevamente.")
+                print("Valor invàlid")
         except ValueError:
-            print("Entrada inválida. Introduzca un número.")
+            print("Valor invàlid")
     
     # Mostrar las fechas y horas disponibles del médico
     if not medico_seleccionado.get_disponibilitat:
-        print(f"El médico {medico_seleccionado.get_nom} no tiene fechas disponibles.")
+        print(f"El metge {medico_seleccionado.get_nom} no te dates disponibles.")
         return
     
-    print(f"\nFechas y horas disponibles para {medico_seleccionado.get_nom}:")
+    print(f"\nDates disponibles per {medico_seleccionado.get_nom}:")
     for i, fecha in enumerate(medico_seleccionado.get_disponibilitat):
         print(f"{i + 1}. {fecha}")
     
     # Selección de la fecha
     while True:
         try:
-            fecha_seleccionada = int(input("Seleccione una fecha por su número: ")) - 1
+            fecha_seleccionada = int(input("Seleccioni una data pel seu número: ")) - 1
             if 0 <= fecha_seleccionada < len(medico_seleccionado.get_disponibilitat):
                 disp = medico_seleccionado.get_disponibilitat
                 fecha_elegida = disp.pop(fecha_seleccionada) 
                 medico_seleccionado.set_disponibilitat(disp)
-                print(f"Ha seleccionado la fecha y hora: {fecha_elegida}")
+                print(f"Ha seleccionat la data i hora: {fecha_elegida}")
                 break
             else:
-                print("Número fuera de rango. Intente nuevamente.")
+                print("Valor invàlid")
         except ValueError:
-            print("Entrada inválida. Introduzca un número.")
+            print("Valor invàlid")
     
     # Llamar a la función para actualizar la disponibilidad en el archivo JSON
     actualizar_disponibilidad("disponibilitat.json", medico_seleccionado.get_DNI, fecha_elegida)
@@ -614,7 +594,6 @@ def demanar_cita(usuari, medics, registre=False):
     guardar_cites(cita)
     print("Registre mèdic completat i cita concertada!")
     return cita
-
 
 def monitoratge(usuari, actiu):
     print("\n--- Configuració de Monitoratge ---")
@@ -646,7 +625,6 @@ def monitoratge(usuari, actiu):
                 else:
                     print("Opció no disponible")
 
-# Menú principal dins de l'app
 def menu_app(usuari, metges, des_de_registre):
     actiu = True
     while True:
@@ -804,10 +782,189 @@ def menu_app(usuari, metges, des_de_registre):
         else:
             print("Opció no vàlida. Torna-ho a intentar.")
 
-# Programa principal
+def other_main(val):
+    if val == 2:  # Familiar
+        print("\n--- Dades del Familiar ---")
+        nom = input("Nom: ")
+        telefon = introduir_telefon()
+        parentiu = input("Parentiu: ")
+        dia = input("Introdueix el dia en que vas nèixer: ")
+        mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
+        anyy = input("Introdueix l'any en que vas nèixer: ")
+        while not validar_data(dia, mes, anyy):
+            print("Format no vàlid.")
+            dia = input("Introdueix el dia en que vas nèixer: ")
+            mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
+            anyy = input("Introdueix l'any en que vas nèixer: ")
+        genere = introduir_sexe()
+        adreca = input("Adreça: ")
+
+        print(f"\nDades del familiar:\nNom: {nom}\nNúmero: {telefon}\nParentiu: {parentiu}\nData de naixement: {dia, mes, any}\nGènere: {genere}\nAdreça: {adreca}")
+        while True:
+            print("\n--- Menú Familiar ---")
+            print("1. Xats")
+            print("2. Trucades")
+            print("3. Grups")
+            print("4. Contactes")
+            print("5. Tornar al Menú Principal")
+            try:
+                opcio = int(input("Selecciona una opció: "))
+                if opcio == 5:
+                    return
+                elif 1 <= opcio <= 4:
+                    print("Aquesta funcionalitat s'implementarà de cara al futur...")
+                else:
+                    print("Opció no vàlida. Introdueix un número entre 1 i 5.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, introdueix un número.")
+
+    elif val == 3:  # Amic
+        print("\n--- Dades de l'Amic ---")
+        nom = input("Nom: ")
+        while True:
+            dni = input("DNI (9 caràcters): ")
+            if len(dni) == 9:
+                break
+            print("El DNI ha de tenir 9 caràcters.")
+        telefon = introduir_telefon()
+        genere = introduir_sexe()
+        dia = input("Introdueix el dia en que vas nèixer: ")
+        mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
+        anyy = input("Introdueix l'any en que vas nèixer: ")
+        while not validar_data(dia, mes, anyy):
+            print("Format no vàlid.")
+            dia = input("Introdueix el dia en que vas nèixer: ")
+            mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
+            anyy = input("Introdueix l'any en que vas nèixer: ")
+        adreca = input("Adreça: ")
+        
+        hobbies = []
+        print("Introdueix els hobbies. Escriu 'fi' per acabar.")
+        while True:
+            hobbie = input("Hobbie: ")
+            if hobbie.lower() == "fi":
+                break
+            hobbies.append(hobbie)
+
+        print(f"\nDades de l'amic:\nNom: {nom}\nDNI: {dni}\nTelèfon: {telefon}\nGènere: {genere}\nData de naixement: {dia, mes, any}\nAdreça: {adreca}\nHobbies: {', '.join(hobbies)}")
+        while True:
+            print("\n--- Menú Amic ---")
+            print("1. Xats")
+            print("2. Trucades")
+            print("3. Grups")
+            print("4. Contactes")
+            print("5. Tornar al Menú Principal")
+            try:
+                opcio = int(input("Selecciona una opció: "))
+                if opcio == 5:
+                    return
+                elif 1 <= opcio <= 4:
+                    print("Aquesta funcionalitat s'implementarà de cara al futur...")
+                else:
+                    print("Opció no vàlida. Introdueix un número entre 1 i 5.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, introdueix un número.")
+
+    elif val == 4:  # Personal Sanitari
+        print("\n--- Dades del Personal Sanitari ---")
+        
+        while True:
+            print("1. Metge")
+            print("2. Enfermer")
+            try:
+                tipus_personal = int(input("Selecciona el tipus de personal (1 per Metge, 2 per Enfermer): "))
+                if tipus_personal in [1, 2]:
+                    break
+                else:
+                    print("Opció no vàlida. Si us plau, introdueix 1 o 2.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, introdueix un número.")
+
+        if tipus_personal == 1:  # Metge
+            nom = input("Nom: ")
+            while True:
+                dni = input("DNI (9 caràcters): ")
+                if len(dni) == 9:
+                    break
+                print("El DNI ha de tenir 9 caràcters.")
+            telefon = introduir_telefon()
+            hospital = input("Hospital on treballa: ")
+            num_colegiat = input("Número de col·legiat: ")
+            especialitat = input("Especialitat: ")
+            
+            print(f"\nDades del Metge:\nNom: {nom}\nDNI: {dni}\nTelèfon: {telefon}\nHospital: {hospital}\nNúmero de col·legiat: {num_colegiat}\nEspecialitat: {especialitat}")
+        
+        elif tipus_personal == 2:  # Enfermer
+            nom = input("Nom: ")
+            while True:
+                dni = input("DNI (9 caràcters): ")
+                if len(dni) == 9:
+                    break
+                print("El DNI ha de tenir 9 caràcters.")
+            telefon = introduir_telefon()
+            hospital = input("Hospital on treballa: ")
+            while True:
+                assistencia_domicili = input("Assistència a domicili (si/no): ").lower()
+                if assistencia_domicili in ["si", "no"]:
+                    break
+                print("Entrada no vàlida. Si us plau, introdueix 'si' o 'no'.")
+            
+            print(f"\nDades de l'Enfermer:\nNom: {nom}\nDNI: {dni}\nTelèfon: {telefon}\nHospital: {hospital}\nAssistència a domicili: {assistencia_domicili}")
+
+        # Mostrar el menú
+        while True:
+            print("\n--- Menú Personal Sanitari ---")
+            print("1. Cites pendents")
+            print("2. Solicitar cita pacient")
+            print("3. Consultar constants pacient")
+            print("4. Tornar")
+            try:
+                opcio = int(input("Selecciona una opció: "))
+                if opcio == 4:
+                    return
+                elif opcio in [1, 2, 3]:
+                    print("Dades no disponibles.")
+                else:
+                    print("Opció no vàlida. Introdueix un número entre 1 i 4.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, introdueix un número.")
+
+    elif val == 5:  # Admin
+        print("\n--- Dades de l'Admin ---")
+        nom = input("Nom: ")
+        while True:
+            dni = input("DNI: ")
+            if len(dni) == 9:
+                break
+            print("El DNI ha de tenir 9 caràcters.")
+        correu = input("Introdueix el teu correu electrònic: ")
+        while not validar_correu(correu):
+            print("Correu electrònic no vàlid.")
+            correu = input("Introdueix un correu electrònic vàlid: ")
+        password = input("Contrasenya: ")
+
+        print(f"\nDades de l'Admin:\nNom: {nom}\nMail: {correu}")
+        while True:
+            print("\n--- Menú Admin ---")
+            print("1. Temps d'us persones grans")
+            print("2. Temps d'us familiars")
+            print("3. Temps d'us amics")
+            print("4. Temps d'us personal sanitari")
+            print("5. Funcionalitats més usades")
+            print("6. Interacció amb anuncis")
+            print("7. Sortir")
+            try:
+                opcio = int(input("Selecciona una opció: "))
+                if opcio == 7:
+                    return
+                elif 1 <= opcio <= 6:
+                    print("No hi ha dades suficients per mostrar.")
+                else:
+                    print("Opció no vàlida. Introdueix un número entre 1 i 7.")
+            except ValueError:
+                print("Entrada no vàlida. Si us plau, introdueix un número.")
 
 def main():
-    
     metges = carregar_metges('metges.json')
     usuaris = carregar_usuaris('usuaris.json', metges)
     carregar_disponibilitat('disponibilitat.json', metges)
@@ -844,40 +1001,44 @@ def main():
                 print("Credencials incorrectes!")
 
         elif opcio == "2":
-            existent = False
-            print("\n** Registre d'usuari **")
-            id = generar_id_usuari(usuaris)
-            telefon = introduir_telefon()
-            sexe = introduir_sexe()
-            nom = input("Introdueix el teu nom: ")
-            cognom1 = input("Introdueix el teu primer cognom: ")
-            cognom2 = input("Introdueix el teu segon cognom: ")
-            dia = input("Introdueix el dia en que vas nèixer: ")
-            mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
-            anyy = input("Introdueix l'any en que vas nèixer: ")
-            while not validar_data(dia, mes, anyy):
-                print("Format no vàlid.")
+            usuari_tipus, val = tipus_usuari()
+            if usuari_tipus:
+                existent = False
+                print("\n** Registre d'usuari **")
+                id = generar_id_usuari(usuaris)
+                telefon = introduir_telefon()
+                sexe = introduir_sexe()
+                nom = input("Introdueix el teu nom: ")
+                cognom1 = input("Introdueix el teu primer cognom: ")
+                cognom2 = input("Introdueix el teu segon cognom: ")
                 dia = input("Introdueix el dia en que vas nèixer: ")
                 mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
                 anyy = input("Introdueix l'any en que vas nèixer: ")
-            correu = input("Introdueix el teu correu electrònic: ")
-            while not validar_correu(correu):
-                print("Correu electrònic no vàlid.")
-                correu = input("Introdueix un correu electrònic vàlid: ")
-            password = input("Introdueix la teva contrasenya: ")
+                while not validar_data(dia, mes, anyy):
+                    print("Format no vàlid.")
+                    dia = input("Introdueix el dia en que vas nèixer: ")
+                    mes = input("Introdueix el mes en que vas nèixer (Les 3 primeres lletres. Ex: Jan): ")
+                    anyy = input("Introdueix l'any en que vas nèixer: ")
+                correu = input("Introdueix el teu correu electrònic: ")
+                while not validar_correu(correu):
+                    print("Correu electrònic no vàlid.")
+                    correu = input("Introdueix un correu electrònic vàlid: ")
+                password = input("Introdueix la teva contrasenya: ")
 
-            for usuari in usuaris:
-                if usuari.get_correu == correu:
-                    print("Usuari ja existent, inicia sessió")
-                    existent = True
-            if not existent:
-                nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), None, None, XarxesSocials(id, nom))
-                usuaris.append(nou_usuari)
-                guardar_usuari('usuaris.json', nou_usuari)
+                for usuari in usuaris:
+                    if usuari.get_correu == correu:
+                        print("Usuari ja existent, inicia sessió")
+                        existent = True
+                if not existent:
+                    nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), None, None, XarxesSocials(id, nom))
+                    usuaris.append(nou_usuari)
+                    guardar_usuari('usuaris.json', nou_usuari)
 
-                print(f"Registre complet! El teu ID és {id}")
-                menu_app(nou_usuari, metges, des_de_registre=True)
-                guardar_usuari('usuaris.json', nou_usuari)
+                    print(f"Registre complet! El teu ID és {id}")
+                    menu_app(nou_usuari, metges, des_de_registre=True)
+                    guardar_usuari('usuaris.json', nou_usuari)
+            else:
+                other_main(val)
         elif opcio == "3":
             print("Sortint... Adéu!")
             break
