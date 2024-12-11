@@ -140,6 +140,56 @@ def carregar_usuaris(file_path, metges):
             usuaris.append(usuari)
     return usuaris
 
+def guardar_cites(cita):
+    file_path = 'cites.json'
+    try:
+        # Leer el contenido actual del archivo
+        current_data = []
+        with open(file_path, 'r', encoding='utf-8') as file:
+            current_data = json.load(file)
+        cita_dict = cita.to_dict()
+        for i, existing_cita in enumerate(current_data):
+            if existing_cita.get("idVisita") == cita_dict["idVisita"]:
+                current_data[i] = cita_dict  # Actualizar cita existente
+        else:
+            current_data.append(cita_dict)  # Añadir nueva cita si no existe
+
+        # Escribir los datos actualizados en el archivo
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(current_data, file, ensure_ascii=False, indent=4)
+
+        print(f"Datos guardados correctamente en {file_path}.")
+
+    except Exception as e:
+        print(f"Error al guardar el archivo {file_path}: {e}")
+
+def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
+    try:
+        # Leer el archivo de disponibilidad
+        with open(file_path, 'r', encoding='utf-8') as file:
+            disponibilitat_data = json.load(file)
+
+        # Buscar al médico y actualizar la disponibilidad
+        for medico in disponibilitat_data:
+            if medico["dniMetge"] == dni_metge:
+                if fecha_seleccionada in medico["disponibilitat"]:
+                    medico["disponibilitat"].remove(fecha_seleccionada)
+                    print(f"Fecha {fecha_seleccionada} eliminada de la disponibilidad del Dr. {dni_metge}")
+                else:
+                    print(f"Error: La fecha {fecha_seleccionada} no se encuentra en la disponibilidad del médico.")
+                break
+        else:
+            print(f"Error: No se encontró un médico con DNI {dni_metge}.")
+
+        # Escribir los datos actualizados de nuevo en el archivo
+        with open(file_path, 'w', encoding='utf-8') as file:
+            json.dump(disponibilitat_data, file, ensure_ascii=False, indent=4)
+
+        print("Disponibilidad actualizada correctamente.")
+    except Exception as e:
+        print(f"Error al actualizar la disponibilidad: {e}")
+
+
 def guardar_usuari(file_path, usuari):
     """
     Añade o actualiza un usuario en el archivo JSON.
@@ -545,6 +595,9 @@ def demanar_cita(usuari, medics, registre=False):
         except ValueError:
             print("Entrada inválida. Introduzca un número.")
     
+    # Llamar a la función para actualizar la disponibilidad en el archivo JSON
+    actualizar_disponibilidad("disponibilitat.json", medico_seleccionado.get_DNI, fecha_elegida)
+
     # Selección del tipo de visita
     while True:
         tipus_visita = input("\nSelecciona el tipus de visita (online/presencial): ").lower()
@@ -559,7 +612,7 @@ def demanar_cita(usuari, medics, registre=False):
     usuari.set_notificacions(notis)
     if registre:
         usuari.set_monitoratge(medico_seleccionado)
-    
+    guardar_cites(cita)
     print("Registre mèdic completat i cita concertada!")
     return cita
 
@@ -787,6 +840,7 @@ def main():
 
                 print(usuari.get_registre_medic_complet)
                 menu_app(usuari, metges, des_de_registre=False)
+                guardar_usuari('usuaris.json', usuari)
             else:
                 print("Credencials incorrectes!")
 
@@ -824,12 +878,10 @@ def main():
 
                 print(f"Registre complet! El teu ID és {id}")
                 menu_app(nou_usuari, metges, des_de_registre=True)
-                usuari = nou_usuari
-
+                guardar_usuari('usuaris.json', nou_usuari)
         elif opcio == "3":
             print("Sortint... Adéu!")
             break
-    guardar_usuari('usuaris.json', usuari)
 
 if __name__ == "__main__":
     main()

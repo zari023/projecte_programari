@@ -131,23 +131,6 @@ class Usuari:
     
     def set_xarxes_socials(self, xarxes_socials):
         self.__xarxes_socials = xarxes_socials
-    #----------------------------------------------------------------------------            
-    '''#no calen aquestes diria
-    def afegir_medicacio(self):
-        medicacio = input("")
-        self.dades_mediques["medicacions"].append(medicacio)
-
-    def eliminar_medicacio(self, medicacio):
-        """Elimina una medicación del usuario."""
-        if medicacio in self.dades_mediques["medicacions"]:
-            self.dades_mediques["medicacions"].remove(medicacio)
-        else:
-            print(f"La medicació '{medicacio}' no existeix.")
-
-    def veure_medicacions(self):
-        """Devuelve la lista de medicaciones."""
-        return self.dades_mediques["medicacions"]'''
-    #----------------------------------------------------------------------------
 
 # Classe Metge
 class Metge:
@@ -299,12 +282,23 @@ class Cita:
         self.__DNI_metge = DNI_metge
         self.__cognomMetge = cognomMetge
 
+    def to_dict(self):
+        return {
+            "idVisita": self.__idVisita,
+            "data": self.__data,
+            "tipusVisita": self.__tipusVisita,
+            "prescripcions": self.__prescripcions,
+            "idUsuari": self.__idUsuari,
+            "DNI_metge": self.__DNI_metge,
+            "cognomMetge": self.__cognomMetge,
+        }
+
     def __str__(self):
         return f"Cita {self.__idVisita} - Data: {self.__data}, Tipus: {self.__tipusVisita}, Prescripcions: {self.__prescripcions}, Metge: Dr {self.__cognomMetge}"
 
     # Getters
     @property
-    def get_id_visita(self):
+    def get_idVisita(self):
         return self.__idVisita
     
     @property
