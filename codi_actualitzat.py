@@ -2,17 +2,17 @@ import re
 from datetime import datetime
 from xarxes_socials_functions import *
 from xarxes_socials_enhanced import *
+from xarxes_socials import *
 import csv
 import random
 from classes import *
-
 import json
 
 
 def generar_id_usuari(usuaris):
     while True:
         idd = random.randint(1000, 9999)
-        if not any(usuari.id == idd for usuari in usuaris):
+        if not any(usuari.get_id == idd for usuari in usuaris):
             return idd
 
 def generar_id_cita():
@@ -78,6 +78,21 @@ def carregar_dades_mediques(ruta_json, id_usuari):
     except json.JSONDecodeError:
         print("Error: Format JSON invàlid.")
         return None
+    
+def carregar_xarxes(file_path, idUsuari, nomUsuari):
+    xarxes = []
+    xarxa = XarxesSocials(idUsuari, nomUsuari)
+    with open(file_path, mode='r', encoding='utf-8') as file:
+        dades = json.load(file)
+        for row in dades:
+            if str(row['idUsuari']) == str(idUsuari):
+                xarxa = XarxesSocials(usuari=Usuari(row['idUsuari'], nomUsuari))
+                xarxa.contactes = row.get('contactes', {})
+                xarxa.xats = row.get('xats', {})
+                xarxa.trucades = row.get('trucades', [])
+                xarxa.grups = row.get('grups', {})
+                xarxes.append(xarxa)
+    return xarxa
 
 # Filtrar cites per ID d'usuari
 def carregar_cites(file_path, idUsuari):
@@ -130,9 +145,9 @@ def guardar_usuari(file_path, usuari):
     with open(file_path, mode='a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow([
-            usuari.id, usuari.telefon, usuari.sexe, usuari.nom,
-            usuari.cognom1, usuari.cognom2, usuari.dia, usuari.mes,
-            usuari.anyy, usuari.correu, usuari.password, usuari.registre_medic_complet
+            usuari.get_id, usuari.get_telefon, usuari.get_sexe, usuari.get_nom,
+            usuari.get_cognom1, usuari.get_cognom2, usuari.get_dia, usuari.get_mes,
+            usuari.get_anyy, usuari.get_correu, usuari.password, usuari.registre_medic_complet
         ])
 
 def introduir_medicaments():
@@ -414,7 +429,7 @@ def demanar_cita(usuari, medics, registre=False):
         print("Opció incorrecte")
     
     # Crear la cita y añadir notificación al usuario
-    cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.id, medico_seleccionado.DNI, medico_seleccionado.cognom1)
+    cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.get_id, medico_seleccionado.DNI, medico_seleccionado.cognom1)
     usuari.notificacions["cites"].append(cita)
     if registre:
         usuari.monitoratge = medico_seleccionado  # Asignamos el médico como quien monitoriza
@@ -524,15 +539,28 @@ def menu_app(usuari, metges, des_de_registre):
                 opcio_socials = input("Selecciona una opció: ")
 
                 if opcio_socials == "1":
-                    usuari.gestionar_xats()
+                    usuari.xarxes_socials.gestionar_xats()
 
                 elif opcio_socials == "2":
-                    fer_trucada(usuari)
+                    while True:
+                        print("\n--- Trucades ---")
+                        print("1. Trucar")
+                        print("2. Registre Trucades")
+                        print("3. Tornar a Xarxes Socials") ##quito xarxes socials?
+                        opcio_trucada = input("Selecciona una opció: ")
+                        if opcio_trucada == "1":
+                            usuari.xarxes_socials.fer_trucada()
+                        elif opcio_trucada == "2":
+                            usuari.xarxes_socials.mostrar_registre_trucades()
+                        elif opcio_trucada == "3":
+                            break
+                        else:
+                            print("Opció no vàlida")
 
                 elif opcio_socials == "3":
-                    gestionar_grups(usuari)
+                    usuari.xarxes_socials.gestionar_grups()
                 elif opcio_socials == "4":
-                    usuari.gestionar_contactes()
+                    usuari.xarxes_socials.gestionar_contactes()
                 elif opcio_socials == "5":
                     break
 
@@ -617,10 +645,12 @@ def main():
                 print(f"Benvingut, {usuari.nom}!")
 
                 # Carregar dades mediques i cites del usuari
-                dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.id)
-                cites = carregar_cites('cites.json', usuari.id)
+                dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.get_id)
+                cites = carregar_cites('cites.json', usuari.get_id)
+                xarxes_socials = carregar_xarxes('xarxes_socials.json', usuari.get_id, usuari.nom)
                 usuari.notificacions['cites'] = cites
                 usuari.dades_mediques = dades_mediques
+                usuari.xarxes_socials = xarxes_socials
 
                 print(usuari.registre_medic_complet)
                 menu_app(usuari, metges, des_de_registre=False)
@@ -655,7 +685,7 @@ def main():
                     print("Usuari ja existent, inicia sessió")
                     existent = True
             if not existent:
-                nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id))
+                nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), None, None, XarxesSocials(id, nom))
                 usuaris.append(nou_usuari)
                 guardar_usuari('usuaris.json', nou_usuari)
 
