@@ -10,7 +10,8 @@ from codi_actualitzat import (
     validar_correu,
     validar_data,
     editar_pes,
-    editar_altura
+    editar_altura,
+    guardar_dades_mediques
 )
 
 class TestBackendLogic(unittest.TestCase):
@@ -216,12 +217,17 @@ class TestBackendLogic(unittest.TestCase):
         id2 = 54321
         self.assertNotEqual(id1, id2)
 
-    def test_guardar_dades_mediques(self):
+    @patch("builtins.open", new_callable=mock_open, read_data='[]')
+    @patch("json.load", return_value=[])
+    @patch("json.dump")
+    def test_guardar_dades_mediques(self, mock_json_dump, mock_json_load, mock_file):
         """Test per comprovar la funcionalitat de guardar dades mèdiques."""
-        with patch("builtins.open", mock_open()) as mock_file:
-            with patch("json.dump") as mock_dump:
-                guardar_cites(self.usuari.get_dades_mediques)
-                mock_dump.assert_called_once()
+        dades_med = self.usuari.get_dades_mediques
+        guardar_dades_mediques(self.usuari.get_id, dades_med)
+        mock_json_dump.assert_called_once()
+        args, _ = mock_json_dump.call_args
+        self.assertIn("ID_Usuari", args[0][0])  # Comprova que l'ID de l'usuari es guarda correctament
+        self.assertIn("Altura", args[0][0])  # Comprova que altres dades es guarden correctament
 
 if __name__ == "__main__":
     unittest.main()
