@@ -50,8 +50,8 @@ def carregar_disponibilitat(nom_arxiu, llista_metges):
             
             # Buscar metge amb el mateix dni
             for metge in llista_metges:
-                if metge.DNI == dni:
-                    metge.disponibilitat = disponibilitat
+                if metge.get_DNI == dni:
+                    metge.set_disponibilitat = disponibilitat
                     break
 
         print("Disponibilitat carregada correctament.")
@@ -198,7 +198,7 @@ def gestio_dades_mediques(usuari):
         
         if opcio == "1":
             # Visualitzar dades mèdiques
-            print(usuari.dades_mediques)
+            print(usuari.get_dades_mediques)
         
         elif opcio == "2":
             # Editar dades mèdiques
@@ -215,17 +215,17 @@ def gestio_dades_mediques(usuari):
                 
                 if subOpcio == "1":
                     # Editar malalties
-                    print("Malalties actuals:", usuari.dades_mediques.get_malalties())
+                    print("Malalties actuals:", usuari.get_dades_mediques.get_malalties)
                     malalties = introduir_malalties()
-                    usuari.dades_mediques.set_malalties(malalties)
+                    usuari.get_dades_mediques.set_malalties(malalties)
                     print("Mlalaties actualitzades.")
 
                 elif subOpcio == "2":
                     # Editar medicacions
                     #POTSER ESTARIA GUAY DONAR OPCIÓ PER AFEGIR MEDICACIONS
-                    print("Medicacions actuals:", usuari.dades_mediques.get_medicacions())
+                    print("Medicacions actuals:", usuari.get_dades_mediques.get_medicacions)
                     medicacions = introduir_medicaments()
-                    usuari.dades_mediques.set_medicacions(medicacions)
+                    usuari.get_dades_mediques.set_medicacions(medicacions)
                     print("Medicacions actualitzades.")
                 
                 elif subOpcio == "3":
@@ -234,13 +234,12 @@ def gestio_dades_mediques(usuari):
                         try:
                             nova_altura = float(input("Introdueix nova altura (en cm): "))
                             if 50 <= nova_altura <= 320:  # Rang raonable per a l'alçada en cm
-                                usuari.dades_mediques.set_altura(nova_altura)
+                                usuari.get_dades_mediques.set_altura(nova_altura)
                                 break
                             else:
                                 print("L'alçada ha d'estar entre 50 i 300 cm.")
                         except ValueError:
                             print("Si us plau, introdueix un valor enter vàlid per a l'alçada.")
-                    usuari.dades_mediques.set_altura(nova_altura)
                     print("Altura actualitzada.")
                 
                 elif subOpcio == "4":
@@ -249,22 +248,20 @@ def gestio_dades_mediques(usuari):
                         try:
                             nou_pes = float(input("Introdueix nou pes (en kg): "))
                             if 10 <= nou_pes <= 300:  # Rang raonable per al pes en kg
-                                usuari.dades_mediques.set_pes(nou_pes)
+                                usuari.get_dades_mediques.set_pes(nou_pes)
                                 break
                             else:
                                 print("El pes ha d'estar entre 10 i 500 kg.")
                         except ValueError:
                             print("Si us plau, introdueix un valor enter vàlid per al pes.")
-                    
-                    usuari.dades_mediques.set_pes(nou_pes)
                     print("Pes actualitzat.")
                 
                 elif subOpcio == "5":
                     # Editar al·lèrgies
-                    print("Al·lèrgies actuals:", usuari.dades_mediques.get_alergies())
+                    print("Al·lèrgies actuals:", usuari.get_dades_mediques.get_alergies)
                     noves_alergies = input("Introdueix noves al·lèrgies (separades per ;): ")
                     alergies = noves_alergies.split(';')
-                    usuari.dades_mediques.set_alergies(alergies)
+                    usuari.get_dades_mediques.set_alergies(alergies)
                     print("Al·lèrgies actualitzades.")
                 
                 elif subOpcio == "6":
@@ -318,7 +315,7 @@ def introduir_sexe():
 # Mostrar notificacions
 def mostrar_notificacions(usuari):
     print("\n--- Notificacions ---")
-    for categoria, notificacions in usuari.notificacions.items():
+    for categoria, notificacions in usuari.get_notificacions.items():
         if notificacions:
             print(f"{categoria.capitalize()}:")
             for notificacio in notificacions:
@@ -332,19 +329,19 @@ def completar_registre_medic(usuari, medics):
     
     malalties = input("Introdueix les teves malalties prèvies (separades per comes, o pressiona Enter si no tens cap): ")
     malalties_llista = malalties.split(",") if malalties != "" else []
-    usuari.dades_mediques.set_malalties(malalties_llista)
+    usuari.get_dades_mediques.set_malalties(malalties_llista)
     
     # Al·lèrgies
     al_lergies = input("Introdueix les teves al·lèrgies (separades per comes, o pressiona Enter si no tens cap): ")
     alergies_llista = al_lergies.split(",") if al_lergies else []
-    usuari.dades_mediques.set_alergies(alergies_llista)
+    usuari.get_dades_mediques.set_alergies(alergies_llista)
     
     # Alçada
     while True:
         try:
             alçada = int(input("Introdueix la teva alçada (en cm, entre 50 i 300): "))
             if 50 <= alçada <= 320:  # Rang raonable per a l'alçada en cm
-                usuari.dades_mediques.set_altura(alçada)
+                usuari.get_dades_mediques.set_altura(alçada)
                 break
             else:
                 print("L'alçada ha d'estar entre 50 i 300 cm.")
@@ -356,7 +353,7 @@ def completar_registre_medic(usuari, medics):
         try:
             pes = int(input("Introdueix el teu pes (en kg, entre 10 i 500): "))
             if 10 <= pes <= 300:  # Rang raonable per al pes en kg
-                usuari.dades_mediques.set_pes(pes)
+                usuari.get_dades_mediques.set_pes(pes)
                 break
             else:
                 print("El pes ha d'estar entre 10 i 500 kg.")
@@ -375,7 +372,7 @@ def completar_registre_medic(usuari, medics):
         medicacions.append((medicacio, dosi))
     
     # Actualitzar medicacions a la classe DadesMediques
-    usuari.dades_mediques.set_medicacions(tuple(medicacions))
+    usuari.get_dades_mediques.set_medicacions(tuple(medicacions))
     demanar_cita(usuari, medics, True)
 
 def demanar_cita(usuari, medics, registre=False):
@@ -384,7 +381,7 @@ def demanar_cita(usuari, medics, registre=False):
     
     # Mostrar todos los médicos disponibles
     for i, medic in enumerate(medics):
-        print(f"{i + 1}. Dr {medic.cognom1} - Especialidad: {medic.especialitat}")
+        print(f"{i + 1}. Dr {medic.get_cognom1} - Especialidad: {medic.get_especialitat}")
     
     # Selección del médico
     while True:
@@ -399,21 +396,22 @@ def demanar_cita(usuari, medics, registre=False):
             print("Entrada inválida. Introduzca un número.")
     
     # Mostrar las fechas y horas disponibles del médico
-    if not medico_seleccionado.disponibilitat:
-        print(f"El médico {medico_seleccionado.nom} no tiene fechas disponibles.")
+    if not medico_seleccionado.get_disponibilitat:
+        print(f"El médico {medico_seleccionado.get_nom} no tiene fechas disponibles.")
         return
     
-    print(f"\nFechas y horas disponibles para {medico_seleccionado.nom}:")
-    for i, fecha in enumerate(medico_seleccionado.disponibilitat):
+    print(f"\nFechas y horas disponibles para {medico_seleccionado.get_nom}:")
+    for i, fecha in enumerate(medico_seleccionado.get_disponibilitat):
         print(f"{i + 1}. {fecha}")
     
     # Selección de la fecha
     while True:
         try:
             fecha_seleccionada = int(input("Seleccione una fecha por su número: ")) - 1
-            if 0 <= fecha_seleccionada < len(medico_seleccionado.disponibilitat):
-                fecha_elegida = medico_seleccionado.disponibilitat.pop(fecha_seleccionada)
-                dia_seleccionat, hora_seleccionada = fecha_elegida.split(" - ")
+            if 0 <= fecha_seleccionada < len(medico_seleccionado.get_disponibilitat):
+                disp = medico_seleccionado.get_disponibilitat
+                fecha_elegida = disp.pop(fecha_seleccionada) 
+                medico_seleccionado.set_disponibilitat(disp)
                 print(f"Ha seleccionado la fecha y hora: {fecha_elegida}")
                 break
             else:
@@ -429,10 +427,12 @@ def demanar_cita(usuari, medics, registre=False):
         print("Opció incorrecte")
     
     # Crear la cita y añadir notificación al usuario
-    cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.get_id, medico_seleccionado.DNI, medico_seleccionado.cognom1)
-    usuari.notificacions["cites"].append(cita)
+    cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.get_id, medico_seleccionado.get_DNI, medico_seleccionado.get_cognom1)
+    notis = usuari.get_notificacions
+    notis = notis["cites"].append(cita)
+    usuari.set_notificacions(notis)
     if registre:
-        usuari.monitoratge = medico_seleccionado  # Asignamos el médico como quien monitoriza
+        usuari.get_monitoratge = medico_seleccionado  # Asignamos el médico como quien monitoriza
     
     print("Registre mèdic completat i cita concertada!")
     return cita
@@ -440,7 +440,7 @@ def demanar_cita(usuari, medics, registre=False):
 
 def monitoratge(usuari, actiu):
     print("\n--- Configuració de Monitoratge ---")
-    if not usuari.registre_medic_complet:
+    if not usuari.get_registre_medic_complet:
         print("No tens el registre mèdic completat. No es pot monitoritzar fins que no ho facis.")
     else:
         while True:
@@ -456,7 +456,7 @@ def monitoratge(usuari, actiu):
                 else:
                     print("Opció no disponible")
             else:
-                print(f"Monitoratge activat amb el metge {usuari.monitoratge}.")
+                print(f"Monitoratge activat amb el metge {usuari.get_monitoratge}.")
                 print("Dispositius: Cap")
                 print("1. Desactivar monitoratge")
                 print("2. Tornar")
@@ -474,7 +474,7 @@ def menu_app(usuari, metges, des_de_registre):
     while True:
         print("\n--- Menú Principal ---")
         mostrar_notificacions(usuari)
-        if not usuari.registre_medic_complet:
+        if not usuari.get_registre_medic_complet:
             print("1. Completar el registre mèdic")
         else:
             print("1. Menú mèdic")
@@ -484,10 +484,10 @@ def menu_app(usuari, metges, des_de_registre):
         print("5. Sortir")
         opcio = input("Selecciona una opció: ")
         if opcio == "1":
-            if not usuari.registre_medic_complet:
+            if not usuari.get_registre_medic_complet:
                 cita = completar_registre_medic(usuari, metges)
                 print(f"Cita concertada: {cita}")
-                usuari.registre_medic_complet = 1
+                usuari.set_registre_medic_complet(1)
             else:
                 while True:
                     print("\n--- Menú Mèdic ---")
@@ -530,6 +530,7 @@ def menu_app(usuari, metges, des_de_registre):
                     
         elif opcio == "2":
             while True:
+                xarxes = usuari.get_xarxes_socials
                 print("\n--- Xarxes Socials ---")
                 print("1. Xats")
                 print("2. Trucades")
@@ -539,7 +540,7 @@ def menu_app(usuari, metges, des_de_registre):
                 opcio_socials = input("Selecciona una opció: ")
 
                 if opcio_socials == "1":
-                    usuari.xarxes_socials.gestionar_xats()
+                    xarxes.gestionar_xats()
 
                 elif opcio_socials == "2":
                     while True:
@@ -549,18 +550,18 @@ def menu_app(usuari, metges, des_de_registre):
                         print("3. Tornar a Xarxes Socials") ##quito xarxes socials?
                         opcio_trucada = input("Selecciona una opció: ")
                         if opcio_trucada == "1":
-                            usuari.xarxes_socials.fer_trucada()
+                            xarxes.fer_trucada()
                         elif opcio_trucada == "2":
-                            usuari.xarxes_socials.mostrar_registre_trucades()
+                            xarxes.mostrar_registre_trucades()
                         elif opcio_trucada == "3":
                             break
                         else:
                             print("Opció no vàlida")
 
                 elif opcio_socials == "3":
-                    usuari.xarxes_socials.gestionar_grups()
+                    xarxes.gestionar_grups()
                 elif opcio_socials == "4":
-                    usuari.xarxes_socials.gestionar_contactes()
+                    xarxes.gestionar_contactes()
                 elif opcio_socials == "5":
                     break
 
@@ -587,17 +588,20 @@ def menu_app(usuari, metges, des_de_registre):
                         print("4. Tornar")
                         sel = input("Selecciona una opció: ")
                         if sel == "1":
-                            nouTelf = introduir_telefon
-                            usuari.telefon.append(nouTelf)
+                            nouTelf = introduir_telefon()
+                            telfs = usuari.get_telefon
+                            if nouTelf not in telfs:
+                                telfs.append(nouTelf)
+                            usuari.set_telefon = telfs
                         if sel == "2":
                             nouSex = introduir_sexe()
-                            usuari.sexe=nouSex
+                            usuari.set_sexe(nouSex)
                         if sel == "3":
                             correu = input("Introdueix el nou correu electrònic: ")
                             while not validar_correu(correu):
                                 print("Correu electrònic no vàlid.")
                                 correu = input("Introdueix un correu electrònic vàlid: ")
-                            usuari.correu = correu
+                            usuari.set_correu(correu)
                         if sel == "4":
                             break
                         else:
@@ -639,20 +643,22 @@ def main():
         if opcio == "1":
             correu = input("Introdueix el teu correu electrònic: ")
             password = input("Introdueix la contrasenya: ")
-            usuari = next((u for u in usuaris if u.correu == correu and u.password == password), None)
+            usuari = next((u for u in usuaris if u.get_correu == correu and u.get_password == password), None)
 
             if usuari:
-                print(f"Benvingut, {usuari.nom}!")
+                print(f"Benvingut, {usuari.get_nom}!")
 
                 # Carregar dades mediques i cites del usuari
                 dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.get_id)
                 cites = carregar_cites('cites.json', usuari.get_id)
-                xarxes_socials = carregar_xarxes('xarxes_socials.json', usuari.get_id, usuari.nom)
-                usuari.notificacions['cites'] = cites
-                usuari.dades_mediques = dades_mediques
-                usuari.xarxes_socials = xarxes_socials
+                xarxes_socials = carregar_xarxes('xarxes_socials.json', usuari.get_id, usuari.get_nom)
+                notis = usuari.get_notificacions
+                notis['cites'] = cites
+                usuari.set_notificacions()
+                usuari.set_dades_mediques(dades_mediques)
+                usuari.set_xarxes_socials(xarxes_socials)
 
-                print(usuari.registre_medic_complet)
+                print(usuari.get_registre_medic_complet)
                 menu_app(usuari, metges, des_de_registre=False)
             else:
                 print("Credencials incorrectes!")
@@ -662,7 +668,7 @@ def main():
             print("\n** Registre d'usuari **")
             id = generar_id_usuari(usuaris)
             telefon = introduir_telefon()
-            sexe = introduir_sexe
+            sexe = introduir_sexe()
             nom = input("Introdueix el teu nom: ")
             cognom1 = input("Introdueix el teu primer cognom: ")
             cognom2 = input("Introdueix el teu segon cognom: ")
