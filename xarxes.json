@@ -2,23 +2,23 @@
     {
         "idUsuari": 5678,
         "contactes": {
-            "ldkgjfda": {
+            "Joel": {
                 "telefon": "",
                 "correu": "",
                 "xats": []
             }
         },
         "xats": {
-            "ldkgjfda": [
+            "Joel": [
                 "Tu: dlfskgjdsfñlg",
                 "Tu: ñdfjknasdñlfjasd"
             ]
         },
         "trucades": [
             {
-                "contacte": "ldkgjfda",
+                "contacte": "Joel",
                 "tipus": "Veu",
-                "data": "2024-12-11 17:22:13"
+                "data": "2024-dec-11 17:22:13"
             }
         ],
         "grups": {

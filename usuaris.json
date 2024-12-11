@@ -21,7 +21,7 @@
         "Telefon": [
             "612345789"
         ],
-        "Sexe": "F",
+        "Sexe": "dona",
         "Nom": "Laura",
         "Cognom1": "Gispert",
         "Cognom2": "Cortes",
@@ -31,53 +31,5 @@
         "Correu": "l@gmail.com",
         "Password": "laura",
         "Registre_Medic": 1
-    },
-    {
-        "ID": 9017,
-        "Telefon": [
-            "123456789"
-        ],
-        "Sexe": "home",
-        "Nom": "1",
-        "Cognom1": "1",
-        "Cognom2": "1",
-        "Dia": 1,
-        "Mes": "jan",
-        "Any": 1,
-        "Correu": "1@gmail.com",
-        "Password": "1",
-        "Registre_Medic": 0
-    },
-    {
-        "ID": 6522,
-        "Telefon": [
-            "121212121"
-        ],
-        "Sexe": "home",
-        "Nom": "2",
-        "Cognom1": "2",
-        "Cognom2": "2",
-        "Dia": 2,
-        "Mes": "jan",
-        "Any": 2,
-        "Correu": "2@gmail.com",
-        "Password": "2",
-        "Registre_Medic": 0
-    },
-    {
-        "ID": 8958,
-        "Telefon": [
-            "987698765"
-        ],
-        "Sexe": "dona",
-        "Nom": "laurrrrra",
-        "Cognom1": "aa",
-        "Cognom2": "aa",
-        "Dia": 12,
-        "Mes": "jan",
-        "Any": 12,
-        "Correu": "13@gmail.com",
-        "Password": "13",
-        "Registre_Medic": 0
     }
 ]

@@ -7,21 +7,18 @@
         "Medicacions": [
             "Cetilicina: 500mg"
         ],
-        "Altura": 1,
-        "Pes": 55,
+        "Altura": 185,
+        "Pes": 60,
         "Alergies": [
             "Kiwi",
-            "nous"
+            "Nous"
         ]
     },
     {
         "ID_Usuari": 5678,
-        "Malalties": [
-            "ldkfgjadgñf",
-            "444"
-        ],
+        "Malalties": [],
         "Medicacions": [],
-        "Altura": 1,
+        "Altura": 159,
         "Pes": 51,
         "Alergies": [
             "Tranquilitat"
