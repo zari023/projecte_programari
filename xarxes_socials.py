@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 grupos_cerca =  {
         "Fitness Club": {
             "nom": "Fitness Club",
@@ -80,8 +81,18 @@ class XarxesSocials:
             print(f"El contacte {nom} ja existeix.")
             return
         
-        telefon = input("Introdueix el telèfon: ")
+        while True:
+            telefon = input("Introdueix el teu telèfon:")
+            if len(telefon) != 9 or type(telefon)!=int:
+                print("Número de telèfon incorrecte")
+            else:
+                break
+
         correu = input("Introdueix el correu: ")
+        while not re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None:
+            print("Correu electrònic no vàlid.")
+            correu = input("Introdueix un correu electrònic vàlid: ")
+
         
         # Afegeix el contacte
         self.contactes[nom] = {

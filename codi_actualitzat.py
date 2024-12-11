@@ -1,9 +1,6 @@
 import re
 from datetime import datetime
-from xarxes_socials_functions import *
-from xarxes_socials_enhanced import *
 from xarxes_socials import *
-import csv
 import random
 from classes import *
 import json
@@ -15,8 +12,18 @@ def generar_id_usuari(usuaris):
         if not any(usuari.get_id == idd for usuari in usuaris):
             return idd
 
+import random
+import json
+
 def generar_id_cita():
-    return random.randint(10000, 99999)
+    with open("cites.json", "r", encoding="utf-8") as file:
+        citas = json.load(file)
+    ids_existents = {cita["idVisita"] for cita in citas}
+    while True:
+        nou = random.randint(10000, 99999)
+        if nou not in ids_existents:
+            return nou
+
 
 # Carregar metges
 def carregar_metges(file_path):
@@ -189,6 +196,33 @@ def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
     except Exception as e:
         print(f"Error al actualizar la disponibilidad: {e}")
 
+def editar_altura(usuari):
+    """Función para editar la altura de un usuario."""
+    while True:
+        try:
+            nova_altura = float(input("Introdueix nova altura (en cm): "))
+            if 50 <= nova_altura <= 320:  # Rang raonable per a l'alçada en cm
+                usuari.get_dades_mediques.set_altura(nova_altura)
+                print("Altura actualitzada.")
+                break
+            else:
+                print("L'alçada ha d'estar entre 50 i 320 cm.")
+        except ValueError:
+            print("Si us plau, introdueix un valor vàlid per a l'alçada.")
+
+def editar_pes(usuari):
+    """Función para editar el peso de un usuario."""
+    while True:
+        try:
+            nou_pes = float(input("Introdueix nou pes (en kg): "))
+            if 10 <= nou_pes <= 300:  # Rang raonable per al pes en kg
+                usuari.get_dades_mediques.set_pes(nou_pes)
+                print("Pes actualitzat.")
+                break
+            else:
+                print("El pes ha d'estar entre 10 i 300 kg.")
+        except ValueError:
+            print("Si us plau, introdueix un valor vàlid per al pes.")
 
 def guardar_usuari(file_path, usuari):
     """
@@ -403,33 +437,9 @@ def gestio_dades_mediques(usuari):
                     print("Medicacions actualitzades.")
                 
                 elif subOpcio == "3":
-                    # Editar altura
-                    while True:
-                        try:
-                            nova_altura = float(input("Introdueix nova altura (en cm): "))
-                            if 50 <= nova_altura <= 320:  # Rang raonable per a l'alçada en cm
-                                usuari.get_dades_mediques.set_altura(nova_altura)
-                                break
-                            else:
-                                print("L'alçada ha d'estar entre 50 i 320 cm.")
-                        except ValueError:
-                            print("Si us plau, introdueix un valor enter vàlid per a l'alçada.")
-                    print("Altura actualitzada.")
-                
+                    editar_altura(usuari)
                 elif subOpcio == "4":
-                    # Editar pes
-                    while True:
-                        try:
-                            nou_pes = float(input("Introdueix nou pes (en kg): "))
-                            if 10 <= nou_pes <= 300:  # Rang raonable per al pes en kg
-                                usuari.get_dades_mediques.set_pes(nou_pes)
-                                break
-                            else:
-                                print("El pes ha d'estar entre 10 i 300 kg.")
-                        except ValueError:
-                            print("Si us plau, introdueix un valor enter vàlid per al pes.")
-                    print("Pes actualitzat.")
-                
+                    editar_pes(usuari)
                 elif subOpcio == "5":
                     # Editar al·lèrgies
                     print("Al·lèrgies actuals:", usuari.get_dades_mediques.get_alergies)
@@ -459,17 +469,27 @@ def validar_correu(correu):
 # Validació data naixement
 def validar_data(dia, mes, anyy):
     mesos_valids = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    dies_per_mes = {
+        "jan": 31, "feb": 28, "mar": 31, "apr": 30, "may": 31, "jun": 30,
+        "jul": 31, "aug": 31, "sep": 30, "oct": 31, "nov": 30, "dec": 31
+    }
     try:
         dia = int(dia)
         anyy = int(anyy)
-        if mes.lower() not in mesos_valids:
-            raise ValueError
+        mes = mes.lower()
+        if mes not in mesos_valids:
+            raise ValueError("Mes no válido.")
+        if mes == "feb" and ((anyy % 4 == 0 and anyy % 100 != 0) or (anyy % 400 == 0)):
+            dies_per_mes["feb"] = 29
+        if dia < 1 or dia > dies_per_mes[mes]:
+            raise ValueError("Día no válido para el mes especificado.")
         return True
     except ValueError:
         return False
 
+
 def validar_telefon(tel):
-    if len(tel) != 9:
+    if len(tel) != 9 or type(tel)!=int:
         print("Número de telèfon incorrecte")
         return False
     return True
@@ -511,29 +531,8 @@ def completar_registre_medic(usuari, medics):
     alergies_llista = al_lergies.split(",") if al_lergies else []
     usuari.get_dades_mediques.set_alergies(alergies_llista)
     
-    # Alçada
-    while True:
-        try:
-            alçada = int(input("Introdueix la teva alçada (en cm, entre 50 i 320): "))
-            if 50 <= alçada <= 320:  # Rang raonable per a l'alçada en cm
-                usuari.get_dades_mediques.set_altura(alçada)
-                break
-            else:
-                print("L'alçada ha d'estar entre 50 i 320 cm.")
-        except ValueError:
-            print("Si us plau, introdueix un valor enter vàlid per a l'alçada.")
-
-    # Pes
-    while True:
-        try:
-            pes = int(input("Introdueix el teu pes (en kg, entre 10 i 300): "))
-            if 10 <= pes <= 300:  # Rang raonable per al pes en kg
-                usuari.get_dades_mediques.set_pes(pes)
-                break
-            else:
-                print("El pes ha d'estar entre 10 i 300 kg.")
-        except ValueError:
-            print("Si us plau, introdueix un valor enter vàlid per al pes.")
+    editar_altura(usuari)
+    editar_pes(usuari)
 
     
     # Medicació
