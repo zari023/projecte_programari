@@ -1,18 +1,20 @@
 [
     {
-        "idVisita": 1,
+        "idVisita": 10001,
         "data": "2024-Dec-15",
         "tipusVisita": "online",
         "prescripcions": "Paracetamol 500mg",
         "idUsuari": 1234,
-        "DNI_metge": "12345678A"
+        "DNI_metge": "12345678A",
+        "cognomMetge": "Ferrer"
     },
     {
-        "idVisita": 2,
+        "idVisita": 10002,
         "data": "2024-Dec-20",
         "tipusVisita": "presencial",
         "prescripcions": "Amoxicilina 250mg",
         "idUsuari": 5678,
-        "DNI_metge": "87654321B"
+        "DNI_metge": "87654321B",
+        "cognomMetge": "Lopez"
     }
 ]

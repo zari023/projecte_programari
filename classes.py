@@ -20,7 +20,7 @@ class Usuari:
             "cites": [],
             "recordatoris": [],
         }
-        self.monitoratge = None  # El metge que monitoritza
+        self.monitoratge = monitoratge  # El metge que monitoritza
         self.xarxes_socials = {
             "contactes": {},  # Unified contacts dictionary
             "xats": {},  # Chats with each contact
@@ -195,7 +195,7 @@ class Usuari:
 
 # Classe Metge
 class Metge:
-    def __init__(self, DNI, nom, cognom1, cognom2, telefon, hospital, numColegiat, especialitat):
+    def __init__(self, DNI, nom, cognom1, cognom2, telefon, hospital, numColegiat, especialitat, disponibilitat):
         self.DNI = DNI
         self.nom = nom
         self.cognom1 = cognom1
@@ -204,6 +204,7 @@ class Metge:
         self.hospital = hospital
         self.numColegiat = numColegiat
         self.especialitat = especialitat
+        self.disponibilitat = disponibilitat
 
     def __str__(self):
         return f"Dr. {self.nom} {self.cognom1} {self.cognom2} ({self.especialitat}) - {self.hospital}"
@@ -257,19 +258,19 @@ class DadesMediques:
         self._alergies = alergies
 
     def __str__(self):
-        return f"Usuari: {self._idUsuari}, Medicacions: {self._medicacions}, Alçada: {self._altura}, Pes: {self._pes}, Al·lèrgies: {self._alergies}"
+        return f"Malalties: {self._malalties}, Medicacions: {self._medicacions}, Alçada: {self._altura}, Pes: {self._pes}, Al·lèrgies: {self._alergies}"
 
 # Classe Cita
 class Cita:
-    def __init__(self, idVisita, data, tipusVisita, prescripcions, idUsuari, DNI_metge):
+    def __init__(self, idVisita, data, tipusVisita, prescripcions, idUsuari, DNI_metge, cognomMetge):
         self.idVisita = idVisita
         self.data = data
         self.tipusVisita = tipusVisita  # "online" o "presencial"
-        self.prescripcions = prescripcions  # Llista de prescripcions
+        self.prescripcions = prescripcions
         self.idUsuari = idUsuari
         self.DNI_metge = DNI_metge
+        self.cognomMetge = cognomMetge
 
     def __str__(self):
-        prescripcions_str = ", ".join(self.prescripcions)
-        return f"Cita {self.idVisita} - Data: {self.data}, Tipus: {self.tipusVisita}, Prescripcions: {prescripcions_str}, Usuari: {self.idUsuari}, Metge: {self.DNI_metge}"
+        return f"Cita {self.idVisita} - Data: {self.data}, Tipus: {self.tipusVisita}, Prescripcions: {self.prescripcions}, Metge: Dr {self.cognomMetge}"
 

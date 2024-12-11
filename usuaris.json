@@ -1,7 +1,7 @@
 [
     {
         "ID": 1234,
-        "Telefon": "684274745",
+        "Telefon": ["684274745"],
         "Sexe": "M",
         "Nom": "Joel",
         "Cognom1": "Clemente",
@@ -15,7 +15,7 @@
     },
     {
         "ID": 5678,
-        "Telefon": "612345789",
+        "Telefon": ["612345789"],
         "Sexe": "F",
         "Nom": "Laura",
         "Cognom1": "Gispert",
