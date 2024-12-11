@@ -1,0 +1,37 @@
+[
+    {
+        "idUsuari": 5678,
+        "contactes": {
+            "ldkgjfda": {
+                "telefon": "",
+                "correu": "",
+                "xats": []
+            }
+        },
+        "xats": {
+            "ldkgjfda": [
+                "Tu: dlfskgjdsfñlg",
+                "Tu: ñdfjknasdñlfjasd"
+            ]
+        },
+        "trucades": [
+            {
+                "contacte": "ldkgjfda",
+                "tipus": "Veu",
+                "data": "2024-12-11 17:22:13"
+            }
+        ],
+        "grups": {
+            "Lectors Entusiastes": {
+                "nom": "Lectors Entusiastes",
+                "categoria": "Interessos",
+                "subcategoria": "Literatura",
+                "descripcio": "Un lloc per compartir llibres i recomanacions literàries.",
+                "participants": [
+                    "Laura"
+                ],
+                "missatges": []
+            }
+        }
+    }
+]

@@ -79,14 +79,14 @@ def carregar_dades_mediques(ruta_json, id_usuari):
         print("Error: Format JSON invàlid.")
         return None
     
-def carregar_xarxes(file_path, idUsuari, nomUsuari):
+def carregar_xarxes(idUsuari, nomUsuari):
     xarxes = []
     xarxa = XarxesSocials(idUsuari, nomUsuari)
-    with open(file_path, mode='r', encoding='utf-8') as file:
+    with open('xarxes.json', mode='r', encoding='utf-8') as file:
         dades = json.load(file)
         for row in dades:
             if str(row['idUsuari']) == str(idUsuari):
-                xarxa = XarxesSocials(usuari=Usuari(row['idUsuari'], nomUsuari))
+                xarxa = XarxesSocials(row['idUsuari'], nomUsuari)
                 xarxa.contactes = row.get('contactes', {})
                 xarxa.xats = row.get('xats', {})
                 xarxa.trucades = row.get('trucades', [])
@@ -187,7 +187,93 @@ def guardar_usuari(file_path, usuari):
     # Guardar los datos actualizados en el archivo JSON
     with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
+import json
 
+def guardar_dades_mediques(id, dades_med):
+    """
+    Añade o actualiza los datos médicos de un usuario en el archivo JSON.
+    
+    :param ruta_json: Ruta del archivo JSON donde se guardarán los datos médicos.
+    :param dades_med: Objeto DadesMediques con los datos a guardar.
+    """
+    # Leer los datos existentes en el archivo (o inicializar una lista vacía si el archivo no existe)
+    try:
+        with open("dades_mediques.json", mode='r', encoding='utf-8') as file:
+            dades = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        dades = []
+
+    # Crear el nuevo objeto con los datos médicos en el formato JSON
+    nou_dades_med = {
+        "ID_Usuari": int(id),
+        "Malalties": list(dades_med.get_malalties),
+        "Medicacions": list(dades_med.get_medicacions),
+        "Altura": int(dades_med.get_altura),
+        "Pes": int(dades_med.get_pes),
+        "Alergies": list(dades_med.get_alergies)
+    }
+
+    # Buscar si los datos médicos ya existen para el usuario por su ID
+    dades_med_exists = False
+    for i, existing_dades_med in enumerate(dades):
+        if existing_dades_med["ID_Usuari"] == nou_dades_med["ID_Usuari"]:
+            # Si los datos médicos ya existen para el usuario, se actualizan los datos
+            dades[i] = nou_dades_med
+            print("Datos médicos actualizados:", dades[i])
+            dades_med_exists = True
+            break
+
+    if not dades_med_exists:
+        # Si los datos médicos no existen, se añade al final
+        dades.append(nou_dades_med)
+
+    # Guardar los datos actualizados en el archivo JSON
+    with open("dades_mediques.json", mode='w', encoding='utf-8') as file:
+        json.dump(dades, file, indent=4, ensure_ascii=False)
+
+import json
+
+def guardar_xarxes(id, xarxa):
+    """
+    Añade o actualiza los datos de una red social para un usuario en el archivo JSON.
+    
+    :param file_path: Ruta del archivo JSON donde se guardarán los datos.
+    :param xarxa: Objeto XarxesSocials con los datos a guardar.
+    """
+    # Leer los datos existentes en el archivo (o inicializar una lista vacía si el archivo no existe)
+    try:
+        with open("xarxes.json", mode='r', encoding='utf-8') as file:
+            dades = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        dades = []
+
+    # Crear el nuevo objeto en el formato JSON especificado
+    nou_xarxa = {
+        "idUsuari": int(id),
+        "contactes": dict(xarxa.contactes),
+        "xats": dict(xarxa.xats),
+        "trucades": list(xarxa.trucades),
+        "grups": dict(xarxa.grups)
+    }
+
+    # Buscar si la red social ya existe para el usuario por su ID
+    xarxa_exists = False
+    for i, existing_xarxa in enumerate(dades):
+        if existing_xarxa["idUsuari"] == nou_xarxa["idUsuari"]:
+            # Si la red social ya existe para el usuario, se actualizan los datos
+            dades[i] = nou_xarxa
+            print("Red social actualizada:", dades[i])
+            xarxa_exists = True
+            break
+
+    if not xarxa_exists:
+        # Si la red social no existe, se añade al final
+        dades.append(nou_xarxa)
+
+    # Guardar los datos actualizados en el archivo JSON
+    with open("xarxes.json", mode='w', encoding='utf-8') as file:
+        json.dump(dades, file, indent=4, ensure_ascii=False)
+        
 def introduir_medicaments():
     medicaments = []  
 
@@ -313,6 +399,7 @@ def gestio_dades_mediques(usuari):
         
         else:
             print("Opció no vàlida. Si us plau, tria una opció del menú.")
+    guardar_dades_mediques(usuari.get_id, usuari.get_dades_mediques)
 
 
 # Validació de correu electrònic
@@ -606,6 +693,7 @@ def menu_app(usuari, metges, des_de_registre):
 
                 else:
                     print("Opció no vàlida.")
+            guardar_xarxes(usuari.get_id, usuari.get_xarxes_socials)
 
 
         elif opcio == "3":
@@ -690,7 +778,7 @@ def main():
                 # Carregar dades mediques i cites del usuari
                 dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.get_id)
                 cites = carregar_cites('cites.json', usuari.get_id)
-                xarxes_socials = carregar_xarxes('xarxes_socials.json', usuari.get_id, usuari.get_nom)
+                xarxes_socials = carregar_xarxes(usuari.get_id, usuari.get_nom)
                 notis = usuari.get_notificacions
                 notis['cites'] = cites
                 usuari.set_notificacions(notis)
