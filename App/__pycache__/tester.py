@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, mock_open
 from datetime import datetime
 from classes import Usuari, Metge, DadesMediques, Cita
-from codi_actualitzat import (
+from aplicacio import (
     generar_id_usuari,
     carregar_metges,
     carregar_cites,
