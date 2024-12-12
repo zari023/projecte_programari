@@ -3,6 +3,7 @@ from datetime import datetime
 import random
 from classes import *
 import json
+import os
 
 def generar_id_usuari(usuaris):
     while True:
@@ -11,7 +12,9 @@ def generar_id_usuari(usuaris):
             return idd
 
 def generar_id_cita():
-    with open("cites.json", "r", encoding="utf-8") as file:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'cites.json')
+    with open(file_path, "r", encoding="utf-8") as file:
         citas = json.load(file)
     ids_existents = {cita["idVisita"] for cita in citas}
     while True:
@@ -82,7 +85,9 @@ def carregar_dades_mediques(ruta_json, id_usuari):
 def carregar_xarxes(idUsuari, nomUsuari):
     xarxes = []
     xarxa = XarxesSocials(idUsuari, nomUsuari)
-    with open('xarxes.json', mode='r', encoding='utf-8') as file:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'xarxes.json')
+    with open(file_path, mode='r', encoding='utf-8') as file:
         dades = json.load(file)
         for row in dades:
             if str(row['idUsuari']) == str(idUsuari):
@@ -139,7 +144,8 @@ def carregar_usuaris(file_path, metges):
     return usuaris
 
 def guardar_cites(cita):
-    file_path = 'cites.json'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'cites.json')
     try:
         # Leer el contenido actual del archivo
         current_data = []
@@ -279,8 +285,10 @@ def guardar_usuari(file_path, usuari):
         json.dump(dades, file, indent=4, ensure_ascii=False)
 
 def guardar_dades_mediques(id, dades_med):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'dades_mediques.json')
     try:
-        with open("dades_mediques.json", mode='r', encoding='utf-8') as file:
+        with open(file_path, mode='r', encoding='utf-8') as file:
             dades = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         dades = []
@@ -309,12 +317,14 @@ def guardar_dades_mediques(id, dades_med):
         dades.append(nou_dades_med)
 
     # Guardar los datos actualizados en el archivo JSON
-    with open("dades_mediques.json", mode='w', encoding='utf-8') as file:
+    with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
 
 def guardar_xarxes(id, xarxa):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'xarxes.json')
     try:
-        with open("xarxes.json", mode='r', encoding='utf-8') as file:
+        with open(file_path, mode='r', encoding='utf-8') as file:
             dades = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         dades = []
@@ -343,7 +353,7 @@ def guardar_xarxes(id, xarxa):
         dades.append(nou_xarxa)
 
     # Guardar los datos actualizados en el archivo JSON
-    with open("xarxes.json", mode='w', encoding='utf-8') as file:
+    with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
         
 def introduir_medicaments():
@@ -473,10 +483,15 @@ def validar_data(dia, mes, anyy):
         return False
 
 def validar_telefon(tel):
-    if len(tel) != 9 or type(tel)!=int:
+    try:
+        tel_num = int(tel)
+        if len(str(tel_num)) != 9:
+            print("Número de telèfon incorrecte")
+            return False
+        return True
+    except ValueError:
         print("Número de telèfon incorrecte")
         return False
-    return True
 
 def introduir_telefon():
     while True:
@@ -530,7 +545,9 @@ def completar_registre_medic(usuari, medics):
     # Actualitzar medicacions a la classe DadesMediques
     usuari.get_dades_mediques.set_medicacions(tuple(medicacions))
     demanar_cita(usuari, medics, True)
-    guardar_usuari('usuaris.json', usuari)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'usuaris.json')
+    guardar_usuari(file_path, usuari)
 
 def demanar_cita(usuari, medics, registre=False):
     print("\n--- Completar registre mèdic ---")
@@ -575,14 +592,20 @@ def demanar_cita(usuari, medics, registre=False):
             print("Valor invàlid")
     
     # Llamar a la función para actualizar la disponibilidad en el archivo JSON
-    actualizar_disponibilidad("disponibilitat.json", medico_seleccionado.get_DNI, fecha_elegida)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'disponibilitat.json')
+    actualizar_disponibilidad(file_path, medico_seleccionado.get_DNI, fecha_elegida)
 
     # Selección del tipo de visita
-    while True:
-        tipus_visita = input("\nSelecciona el tipus de visita (online/presencial): ").lower()
-        if tipus_visita == "online" or tipus_visita == "presencial":
-            break
-        print("Opció incorrecte")
+    if registre:
+        print("La visita serà online")
+        tipus_visita="online"
+    else:
+        while True:
+            tipus_visita = input("\nSelecciona el tipus de visita (online/presencial): ").lower()
+            if tipus_visita == "online" or tipus_visita == "presencial":
+                break
+            print("Opció incorrecte")
     
     # Crear la cita y añadir notificación al usuario
     cita = Cita(generar_id_cita(), fecha_elegida, tipus_visita, "", usuari.get_id, medico_seleccionado.get_DNI, medico_seleccionado.get_cognom1)
@@ -812,7 +835,7 @@ def other_main(val):
                 if opcio == 5:
                     return
                 elif 1 <= opcio <= 4:
-                    print("Aquesta funcionalitat s'implementarà de cara al futur...")
+                    print("No tens cap contacte afegit!")
                 else:
                     print("Opció no vàlida. Introdueix un número entre 1 i 5.")
             except ValueError:
@@ -965,9 +988,13 @@ def other_main(val):
                 print("Entrada no vàlida. Si us plau, introdueix un número.")
 
 def main():
-    metges = carregar_metges('metges.json')
-    usuaris = carregar_usuaris('usuaris.json', metges)
-    carregar_disponibilitat('disponibilitat.json', metges)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    mmm = os.path.join(current_dir, 'metges.json')
+    uuu = os.path.join(current_dir, 'usuaris.json')
+    ddd = os.path.join(current_dir, 'disponibilitat.json')
+    metges = carregar_metges(mmm)
+    usuaris = carregar_usuaris(uuu, metges)
+    carregar_disponibilitat(ddd, metges)
     print("\n** Benvingut al sistema **")
 
     while True:
@@ -985,8 +1012,10 @@ def main():
                 print(f"Benvingut, {usuari.get_nom}!")
 
                 # Carregar dades mediques i cites del usuari
-                dades_mediques = carregar_dades_mediques('dades_mediques.json', usuari.get_id)
-                cites = carregar_cites('cites.json', usuari.get_id)
+                aaa = os.path.join(current_dir, 'dades_mediques.json')
+                dades_mediques = carregar_dades_mediques(aaa, usuari.get_id)
+                ddd = os.path.join(current_dir, 'cites.json')
+                cites = carregar_cites(ddd, usuari.get_id)
                 xarxes_socials = carregar_xarxes(usuari.get_id, usuari.get_nom)
                 notis = usuari.get_notificacions
                 notis['cites'] = cites
@@ -996,7 +1025,8 @@ def main():
 
                 print(usuari.get_registre_medic_complet)
                 menu_app(usuari, metges, des_de_registre=False)
-                guardar_usuari('usuaris.json', usuari)
+                yyy = os.path.join(current_dir, 'usuaris.json')
+                guardar_usuari(yyy, usuari)
             else:
                 print("Credencials incorrectes!")
 
@@ -1032,11 +1062,12 @@ def main():
                 if not existent:
                     nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), None, None, XarxesSocials(id, nom))
                     usuaris.append(nou_usuari)
-                    guardar_usuari('usuaris.json', nou_usuari)
+                    zzz = os.path.join(current_dir, 'usuaris.json')
+                    guardar_usuari(zzz, nou_usuari)
 
                     print(f"Registre complet! El teu ID és {id}")
                     menu_app(nou_usuari, metges, des_de_registre=True)
-                    guardar_usuari('usuaris.json', nou_usuari)
+                    guardar_usuari(zzz, nou_usuari)
             else:
                 other_main(val)
         elif opcio == "3":

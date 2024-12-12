@@ -16,5 +16,14 @@
         "idUsuari": 5678,
         "DNI_metge": "87654321B",
         "cognomMetge": "Lopez"
+    },
+    {
+        "idVisita": 13991,
+        "data": "17 Ene 2024 - 14:00",
+        "tipusVisita": "presencial",
+        "prescripcions": "",
+        "idUsuari": 7898,
+        "DNI_metge": "11223344C",
+        "cognomMetge": "Gonzalez"
     }
 ]

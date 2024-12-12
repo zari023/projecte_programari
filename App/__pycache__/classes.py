@@ -430,11 +430,17 @@ class XarxesSocials:
             return
         
         while True:
-            telefon = input("Introdueix el teu telèfon:")
-            if len(telefon) != 9 or type(telefon)!=int:
+            telefon = input("Introdueix el seu telèfon:")
+            if len(telefon) != 9:
                 print("Número de telèfon incorrecte")
             else:
-                break
+                try:
+                    tel_num = int(telefon)
+                    break
+                except ValueError:
+                    print("Número de telèfon incorrecte")
+                
+            
 
         correu = input("Introdueix el correu: ")
         while not re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None:
@@ -455,9 +461,11 @@ class XarxesSocials:
         """Gestiona els xats de l'usuari, similar a WhatsApp"""
         while True:
             print("\n--- Xats ---")
-            if not self.xats or not self.contactes:
-                print("No tens cap xat. Vols iniciar un nou xat?")
+            if not self.contactes:
                 self._preguntar_afegir_contacte()
+            if not self.xats:
+                print("No tens cap xat. Vols iniciar un nou xat?")
+                
                 
 
             # Mostrar la llista de xats

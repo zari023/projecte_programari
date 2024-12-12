@@ -1,9 +1,7 @@
 [
     {
         "ID_Usuari": 1234,
-        "Malalties": [
-            "malaria"
-        ],
+        "Malalties": [],
         "Medicacions": [
             "Cetilicina: 500mg"
         ],
@@ -11,7 +9,8 @@
         "Pes": 60,
         "Alergies": [
             "Kiwi",
-            "Nous"
+            "Nous",
+            "Magrana"
         ]
     },
     {

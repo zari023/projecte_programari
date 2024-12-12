@@ -1,0 +1,84 @@
+[
+    {
+        "idUsuari": 5678,
+        "contactes": {
+            "Joel": {
+                "telefon": "",
+                "correu": "",
+                "xats": []
+            }
+        },
+        "xats": {
+            "Joel": [
+                "Tu: Holahola",
+                "Tu: Què tal?"
+            ]
+        },
+        "trucades": [
+            {
+                "contacte": "Joel",
+                "tipus": "Veu",
+                "data": "2024-dec-11 17:22:13"
+            }
+        ],
+        "grups": {
+            "Lectors Entusiastes": {
+                "nom": "Lectors Entusiastes",
+                "categoria": "Interessos",
+                "subcategoria": "Literatura",
+                "descripcio": "Un lloc per compartir llibres i recomanacions literàries.",
+                "participants": [
+                    "Laura"
+                ],
+                "missatges": []
+            }
+        }
+    },
+    {
+        "idUsuari": 1234,
+        "contactes": {
+            "Laura": {
+                "telefon": "634485877",
+                "correu": "l@gmail.com",
+                "xats": []
+            },
+            "Jia": {
+                "telefon": "111111111",
+                "correu": "111@gmail.com",
+                "xats": []
+            }
+        },
+        "xats": {
+            "Laura": [
+                "Tu: Lauralauralaura Respon",
+                "Tu: respon ja"
+            ],
+            "Jia": [
+                "Tu: xina"
+            ]
+        },
+        "trucades": [
+            {
+                "contacte": "Laura",
+                "tipus": "Vídeo",
+                "data": "2024-12-12 01:57:07"
+            }
+        ],
+        "grups": {
+            "Fitness Club": {
+                "nom": "Fitness Club",
+                "categoria": "Salut",
+                "subcategoria": "Exercici",
+                "descripcio": "Un grup per a amants de l'exercici físic i el fitness.",
+                "participants": [
+                    "Joel",
+                    "Jia"
+                ],
+                "missatges": [
+                    "Joel: Feu esport",
+                    "Joel: Feu esport enserio que es important"
+                ]
+            }
+        }
+    }
+]
