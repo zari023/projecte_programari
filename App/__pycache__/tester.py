@@ -44,7 +44,7 @@ class TestBackendLogic(unittest.TestCase):
             password="password123",
             registre_medic_complet=False,
             dades_mediques=DadesMediques(idUsuari=1, malalties=["asma"], medicacions=[], altura=175, pes=70, alergies=[]),
-            notificacions={},
+            notificacions={'missatges': [], 'trucades': [], 'cites': [], 'recordatoris': []},
             monitoratge=None,
             xarxes_socials=None
         )

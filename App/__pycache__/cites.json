@@ -1,7 +1,7 @@
 [
     {
         "idVisita": 10001,
-        "data": "2024-Dec-15",
+        "data": "15 Dec 2024 - 7:00",
         "tipusVisita": "online",
         "prescripcions": "Paracetamol 500mg",
         "idUsuari": 1234,
@@ -10,20 +10,11 @@
     },
     {
         "idVisita": 10002,
-        "data": "2024-Dec-20",
+        "data": "20 Dec 2024 - 8:00",
         "tipusVisita": "presencial",
         "prescripcions": "Amoxicilina 250mg",
         "idUsuari": 5678,
         "DNI_metge": "87654321B",
         "cognomMetge": "Lopez"
-    },
-    {
-        "idVisita": 13991,
-        "data": "17 Ene 2024 - 14:00",
-        "tipusVisita": "presencial",
-        "prescripcions": "",
-        "idUsuari": 7898,
-        "DNI_metge": "11223344C",
-        "cognomMetge": "Gonzalez"
     }
 ]

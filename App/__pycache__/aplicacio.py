@@ -5,12 +5,14 @@ from classes import *
 import json
 import os
 
+#Genera noves id d'usuari
 def generar_id_usuari(usuaris):
     while True:
         idd = random.randint(1000, 9999)
         if not any(usuari.get_id == idd for usuari in usuaris):
             return idd
 
+#Genera noves id de cites
 def generar_id_cita():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'cites.json')
@@ -22,6 +24,7 @@ def generar_id_cita():
         if nou not in ids_existents:
             return nou
 
+#Carrega les dades dels metges
 def carregar_metges(file_path):
     metges = []
     with open(file_path, mode='r', encoding='utf-8') as file:
@@ -41,6 +44,7 @@ def carregar_metges(file_path):
             metges.append(metge)
     return metges
 
+#Carrega les dades de la disponibilitat dels metges
 def carregar_disponibilitat(nom_arxiu, llista_metges):
     try:
         with open(nom_arxiu, 'r', encoding='utf-8') as arxiu:
@@ -63,6 +67,7 @@ def carregar_disponibilitat(nom_arxiu, llista_metges):
     except json.JSONDecodeError:
         print("Error: L'arxiu no té un format JSON vàlid.")
 
+#Carrega les dades mèdiques de l'usuari
 def carregar_dades_mediques(ruta_json, id_usuari):
     try:
         with open(ruta_json, 'r', encoding='utf-8') as file:
@@ -73,15 +78,14 @@ def carregar_dades_mediques(ruta_json, id_usuari):
                 return DadesMediques(row["ID_Usuari"], row['Malalties'], row["Medicacions"], row["Altura"], row["Pes"], row["Alergies"])
             
         return DadesMediques(id_usuari)  
-        # Retorna None si no es troben dades per aquest usuari
-        return None
     except FileNotFoundError:
         print(f"Error: No s'ha trobat el fitxer {ruta_json}.")
         return None
     except json.JSONDecodeError:
         print("Error: Format JSON invàlid.")
         return None
-    
+
+#Carrega les xarxes socials de l'usuari
 def carregar_xarxes(idUsuari, nomUsuari):
     xarxes = []
     xarxa = XarxesSocials(idUsuari, nomUsuari)
@@ -99,12 +103,12 @@ def carregar_xarxes(idUsuari, nomUsuari):
                 xarxes.append(xarxa)
     return xarxa
 
+#Carrega les cites de l'usuari
 def carregar_cites(file_path, idUsuari):
     cites = []
     with open(file_path, mode='r', encoding='utf-8') as file:
         dades = json.load(file)
         for row in dades:
-            print(str(row['idUsuari']) == str(idUsuari))
             if str(row['idUsuari']) == str(idUsuari):
                 cites.append(Cita(
                     idVisita=row['idVisita'],
@@ -117,6 +121,7 @@ def carregar_cites(file_path, idUsuari):
                 ))
     return cites
 
+#Carrega els usuaris
 def carregar_usuaris(file_path, metges):
     usuaris = []
     with open(file_path, mode='r', encoding='utf-8') as file:
@@ -136,13 +141,14 @@ def carregar_usuaris(file_path, metges):
                 password=row['Password'],
                 registre_medic_complet=bool(int(row['Registre_Medic'])),
                 dades_mediques = {},
-                notificacions = {},
+                notificacions = row['Notificacions'],
                 monitoratge = metges[int(row['ID'])%len(metges)],
                 xarxes_socials = {}
             )
             usuaris.append(usuari)
     return usuaris
 
+#Guarda les noves cites dels usuaris
 def guardar_cites(cita):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'cites.json')
@@ -167,6 +173,7 @@ def guardar_cites(cita):
     except Exception as e:
         print(f"Error al guardar l'arxiu {file_path}: {e}")
 
+#Comprova quin tipus d'usuari intenta registrar-se
 def tipus_usuari():
     opciones = {1: "Persona Gran", 2: "Familiar", 3: "Amic", 4: "Personal Sanitari", 5: "Admin"}
     while True:
@@ -183,6 +190,7 @@ def tipus_usuari():
         except ValueError:
             print("Entrada invàlida. Si us plau, introdueix un número.")
 
+#Actualitza la disponibilitat dels metges quan un usuari reserva cita
 def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
     try:
         # Leer el archivo de disponibilidad
@@ -209,6 +217,7 @@ def actualizar_disponibilidad(file_path, dni_metge, fecha_seleccionada):
     except Exception as e:
         print(f"Error al actualitzar la disponibilitat: {e}")
 
+#Modifica l'alçada d'un usuari assegurant uns valors realistes 
 def editar_altura(usuari):
     while True:
         try:
@@ -222,6 +231,7 @@ def editar_altura(usuari):
         except ValueError:
             print("Si us plau, introdueix un valor vàlid per a l'alçada.")
 
+#Modifica l'alçada d'un usuari assegurant uns valors realistes 
 def editar_pes(usuari):
     """Función para editar el peso de un usuario."""
     while True:
@@ -236,6 +246,7 @@ def editar_pes(usuari):
         except ValueError:
             print("Si us plau, introdueix un valor vàlid per al pes.")
 
+#Registra a la BBDD les dades de l'usuari
 def guardar_usuari(file_path, usuari):
     """
     Añade o actualiza un usuario en el archivo JSON.
@@ -263,7 +274,8 @@ def guardar_usuari(file_path, usuari):
         "Any": int(usuari.get_anyy),
         "Correu": str(usuari.get_correu),
         "Password": str(usuari.get_password),
-        "Registre_Medic": int(usuari.get_registre_medic_complet)
+        "Registre_Medic": int(usuari.get_registre_medic_complet),
+        "Notificacions": {"missatges": [],"trucades": [], "cites": [],"recordatoris": usuari.get_notificacions['recordatoris']}
     }
 
     # Buscar si el usuario ya existe por su ID
@@ -284,6 +296,7 @@ def guardar_usuari(file_path, usuari):
     with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
 
+#Registra a la BBDD les dades mèdiques de l'usuari
 def guardar_dades_mediques(id, dades_med):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'dades_mediques.json')
@@ -320,6 +333,7 @@ def guardar_dades_mediques(id, dades_med):
     with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
 
+#Guarda a la BBDD la informació de les xarxes socials de l'usuari
 def guardar_xarxes(id, xarxa):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'xarxes.json')
@@ -355,30 +369,47 @@ def guardar_xarxes(id, xarxa):
     # Guardar los datos actualizados en el archivo JSON
     with open(file_path, mode='w', encoding='utf-8') as file:
         json.dump(dades, file, indent=4, ensure_ascii=False)
-        
+
+#Permet a l'usuari afegir nous medicaments
 def introduir_medicaments():
     medicaments = []  
-
     while True:
         # Demanem el nom del medicament
         nom = input("Introdueix el nom del medicament (o 'fi' per acabar): ").strip()
-
         if nom.lower() == 'fi':
             break  # Si l'usuari escriu 'fi', acabem el bucle
-
         # Demanem la quantitat/dosi
-        quantitat = input(f"Introdueix la quantitat/dosi de {nom}: ").strip()
-
+        quantitat = input(f"Introdueix la quantitat/dosi de {nom} (mg): ").strip()
         # Comprovem que la dosi no estigui buida
         if not quantitat:
             print("La dosi no pot estar buida. Prova-ho de nou.")
             continue  # Si no s'introdueix una dosi, continuem amb el bucle
-
-        # Guardem el medicament com una tupla (nom, quantitat)
-        medicaments.append((nom, quantitat))
-
+        # Guardem el medicament
+        text = nom+": "+quantitat+"mg"
+        medicaments.append(text)
     return medicaments
 
+#Permet a un usuari afegir recordatoris
+def introduir_pastilles():
+    medicaments = []  
+    while True:
+        # Demanem el nom de la medicament
+        nom = input("Introdueix el nom del medicament (o 'fi' per acabar): ").strip()
+        if nom.lower() == 'fi':
+            break  # Si l'usuari escriu 'fi', acabem el bucle
+        # Demanem la quantitat/dosi
+        quantitat = input(f"Introdueix la quantitat/dosi de {nom} (mg): ").strip()
+        # Comprovem que la dosi no estigui buida
+        if not quantitat:
+            print("La dosi no pot estar buida. Prova-ho de nou.")
+            continue  # Si no s'introdueix una dosi, continuem amb el bucle
+        # Guardem el recordatori
+        data = input("Escriu els dies de la setmana que vulguis el recordatori (separats per ;): ")
+        text=nom+": "+quantitat+"mg"
+        medicaments.append(text)
+    return medicaments
+
+#Permet a l'usuari modificar les seves malalties
 def introduir_malalties():
     malalties = []  
 
@@ -393,6 +424,7 @@ def introduir_malalties():
 
     return malalties
 
+#Permet a l'usuari gestionar les seves dades mèdiques
 def gestio_dades_mediques(usuari):
     while True:
         print("\n--- Dades Mèdiques ---")
@@ -411,7 +443,7 @@ def gestio_dades_mediques(usuari):
             while True:
                 print("\nQuè vols editar?")
                 print("1. Malalties")
-                print("2. Medicacions")
+                print("2. Medicaments")
                 print("3. Altura")
                 print("4. Pes")
                 print("5. Al·lèrgies")
@@ -459,9 +491,11 @@ def gestio_dades_mediques(usuari):
             print("Opció no vàlida. Si us plau, tria una opció del menú.")
     guardar_dades_mediques(usuari.get_id, usuari.get_dades_mediques)
 
+#Comprova que el correu sigui vàlid
 def validar_correu(correu):
     return re.match(r"[^@]+@[^@]+\.[^@]+", correu) is not None
 
+#Comprova que el format de la data sigui vàlid
 def validar_data(dia, mes, anyy):
     mesos_valids = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
     dies_per_mes = {
@@ -482,6 +516,7 @@ def validar_data(dia, mes, anyy):
     except ValueError:
         return False
 
+#Comprova que el telefon sigui vàlid
 def validar_telefon(tel):
     try:
         tel_num = int(tel)
@@ -493,6 +528,7 @@ def validar_telefon(tel):
         print("Número de telèfon incorrecte")
         return False
 
+#Permet a l'usuari afegir un nou telefon
 def introduir_telefon():
     while True:
         tel = input("Introdueix el teu telèfon:")
@@ -500,12 +536,14 @@ def introduir_telefon():
         if res:
             return tel
 
+#Controla que el sexe no sigui inventat
 def introduir_sexe():
     while True:
         res = input("Introdueix el nou sexe (home/dona): ").lower()
         if res == "home" or res == "dona":
             return res
-        
+
+#Mostra les notificacions que ha rebut l'usuari 
 def mostrar_notificacions(usuari):
     print("\n--- Notificacions ---")
     for categoria, notificacions in usuari.get_notificacions.items():
@@ -516,6 +554,7 @@ def mostrar_notificacions(usuari):
         else:
             print(f"{categoria.capitalize()}: No hi ha notificacions.")
 
+#Permet a l'usuari completar el seu registre mèdic
 def completar_registre_medic(usuari, medics):
     print("\n--- Completar el Registre Mèdic ---")
     
@@ -539,16 +578,19 @@ def completar_registre_medic(usuari, medics):
         if medicacio == "":
             break
         
-        dosi = input(f"Introdueix la dosi de {medicacio}: ")
-        medicacions.append((medicacio, dosi))
+        dosi = input(f"Introdueix la dosi de {medicacio} (mg): ")
+        text = medicacio+": "+dosi+"mg"
+        medicacions.append(text)
     
     # Actualitzar medicacions a la classe DadesMediques
-    usuari.get_dades_mediques.set_medicacions(tuple(medicacions))
+    usuari.get_dades_mediques.set_medicacions(medicacions)
     demanar_cita(usuari, medics, True)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'usuaris.json')
     guardar_usuari(file_path, usuari)
+    guardar_dades_mediques(usuari.get_id, usuari.get_dades_mediques)
 
+#Permet a l'usuari demanar cita amb un metge
 def demanar_cita(usuari, medics, registre=False):
     print("\n--- Completar registre mèdic ---")
     print("Metges disponibles:")
@@ -618,6 +660,7 @@ def demanar_cita(usuari, medics, registre=False):
     print("Registre mèdic completat i cita concertada!")
     return cita
 
+#Permet a l'usuari controlar qui el monitoritza
 def monitoratge(usuari, actiu):
     print("\n--- Configuració de Monitoratge ---")
     if not usuari.get_registre_medic_complet:
@@ -637,7 +680,7 @@ def monitoratge(usuari, actiu):
                     print("Opció no disponible")
             else:
                 print(f"Monitoratge activat amb el metge {usuari.get_monitoratge}.")
-                print("Dispositius: Cap")
+                print("Dispositius: Marcapasses")
                 print("1. Desactivar monitoratge")
                 print("2. Tornar")
                 opcio_monitoratge = input("Selecciona una opció: ")
@@ -648,6 +691,24 @@ def monitoratge(usuari, actiu):
                 else:
                     print("Opció no disponible")
 
+#Permet afegir recordatoris de pastilles a l'usuari
+def control_pastilles(usuari):
+    while True:
+        print("1. Afegir recordatori")
+        print("2. Tornar")
+        opt=input("Seleccionar una opció: ")
+        if opt == "1":
+            pastilles = introduir_pastilles()
+            notis = usuari.get_notificacions
+            for pastilla in pastilles:
+                notis["recordatoris"].append(pastilla)
+            usuari.set_notificacions(notis)
+        elif opt =="2":
+            return
+        else:
+            print("Opció no vàlida")
+
+#Executa l'aplicació
 def menu_app(usuari, metges, des_de_registre):
     actiu = True
     while True:
@@ -671,7 +732,7 @@ def menu_app(usuari, metges, des_de_registre):
                 while True:
                     print("\n--- Menú Mèdic ---")
                     print("1. Dades Mèdiques")
-                    print("2. Pastilles ")
+                    print("2. Recordatori pastilles ")
                     print("3. Activitat Física")
                     print("4. Cites")
                     print("5. Tornar enrrera")
@@ -679,14 +740,13 @@ def menu_app(usuari, metges, des_de_registre):
                     if opcio_medic == "1":
                         gestio_dades_mediques(usuari)
                     elif opcio_medic == "2":
-                        while True:    
-                                print("\n--- Pastilles ---")
-                                print("Aquesta funcionalitat s'implementarà de cara al futur...")
-                                break
+                            print("\n--- Pastilles ---")
+                            control_pastilles(usuari)
+                            print("Aquesta funcionalitat s'implementarà de cara al futur...")
                     elif opcio_medic == "3":
                         while True:    
                                 print("\n--- Activitat Física ---")
-                                print("Aquesta funcionalitat s'implementarà de cara al futur...")
+                                print("Aquesta funcionalitat s'implementarà de cara al futur... Mou-te")
                                 break
                     elif opcio_medic == "4":
                         while True:    
@@ -805,6 +865,7 @@ def menu_app(usuari, metges, des_de_registre):
         else:
             print("Opció no vàlida. Torna-ho a intentar.")
 
+#Conté el main dels usuaris que no siguin persones grans
 def other_main(val):
     if val == 2:  # Familiar
         print("\n--- Dades del Familiar ---")
@@ -987,6 +1048,7 @@ def other_main(val):
             except ValueError:
                 print("Entrada no vàlida. Si us plau, introdueix un número.")
 
+#Carrega les dades necessàries i fa el registre / inici de sessió
 def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     mmm = os.path.join(current_dir, 'metges.json')
@@ -1060,7 +1122,8 @@ def main():
                         print("Usuari ja existent, inicia sessió")
                         existent = True
                 if not existent:
-                    nou_usuari = Usuari(id, telefon, sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), None, None, XarxesSocials(id, nom))
+                    d={"missatges": [],"trucades": [],"cites": [],"recordatoris": []}
+                    nou_usuari = Usuari(id, [telefon], sexe, nom, cognom1, cognom2, dia, mes, anyy, correu, password, 0, DadesMediques(id), d, None, XarxesSocials(id, nom))
                     usuaris.append(nou_usuari)
                     zzz = os.path.join(current_dir, 'usuaris.json')
                     guardar_usuari(zzz, nou_usuari)

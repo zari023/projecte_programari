@@ -17,12 +17,7 @@ class Usuari:
         self.__password = password
         self.__registre_medic_complet = registre_medic_complet
         self.__dades_mediques = dades_mediques
-        self.__notificacions = {
-            "missatges": [],
-            "trucades": [],
-            "cites": [],
-            "recordatoris": [],
-        }
+        self.__notificacions = notificacions
         self.__monitoratge = monitoratge  # El metge que monitoritza
         self.__xarxes_socials = xarxes_socials
 
@@ -219,7 +214,7 @@ class Metge:
 
 # Classe DadesMediques
 class DadesMediques:
-    def __init__(self, idUsuari, malalties = [], medicacions = (), altura = int, pes = int, alergies = []):
+    def __init__(self, idUsuari, malalties = [], medicacions = [], altura = int, pes = int, alergies = []):
         self.__idUsuari = idUsuari
         self.__malalties = malalties
         self.__medicacions = medicacions  # Llista de tuples (medicació, quantitat)

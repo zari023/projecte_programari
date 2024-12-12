@@ -14,7 +14,16 @@
         "Any": 2004,
         "Correu": "leojca16@gmail.com",
         "Password": "joel",
-        "Registre_Medic": 1
+        "Registre_Medic": 1,
+        "Notificacions": {
+            "missatges": [],
+            "trucades": [],
+            "cites": [],
+            "recordatoris": [
+                "paracetamol, 500",
+                "cetilicina, 200"
+            ]
+        }
     },
     {
         "ID": 5678,
@@ -30,30 +39,12 @@
         "Any": 2004,
         "Correu": "l@gmail.com",
         "Password": "laura",
-        "Registre_Medic": 1
-    },
-    {
-        "ID": 7898,
-        "Telefon": [
-            "9",
-            "9",
-            "9",
-            "9",
-            "9",
-            "9",
-            "9",
-            "9",
-            "9"
-        ],
-        "Sexe": "dona",
-        "Nom": "Juani",
-        "Cognom1": "Martín",
-        "Cognom2": "Franco",
-        "Dia": 11,
-        "Mes": "May",
-        "Any": 1958,
-        "Correu": "jmartin@gmail.com",
-        "Password": "j",
-        "Registre_Medic": 1
+        "Registre_Medic": 1,
+        "Notificacions": {
+            "missatges": [],
+            "trucades": [],
+            "cites": [],
+            "recordatoris": []
+        }
     }
 ]
