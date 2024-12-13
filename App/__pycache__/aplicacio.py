@@ -539,7 +539,7 @@ def introduir_telefon():
 #Controla que el sexe no sigui inventat
 def introduir_sexe():
     while True:
-        res = input("Introdueix el nou sexe (home/dona): ").lower()
+        res = input("Introdueix el teu sexe (home/dona): ").lower()
         if res == "home" or res == "dona":
             return res
 
@@ -611,10 +611,10 @@ def demanar_cita(usuari, medics, registre=False):
     
     # Mostrar las fechas y horas disponibles del médico
     if not medico_seleccionado.get_disponibilitat:
-        print(f"El metge {medico_seleccionado.get_nom} no te dates disponibles.")
+        print(f"El Dr {medico_seleccionado.get_cognom1} no te dates disponibles.")
         return
     
-    print(f"\nDates disponibles per {medico_seleccionado.get_nom}:")
+    print(f"\nDates disponibles pel Dr {medico_seleccionado.get_cognom1}:")
     for i, fecha in enumerate(medico_seleccionado.get_disponibilitat):
         print(f"{i + 1}. {fecha}")
     

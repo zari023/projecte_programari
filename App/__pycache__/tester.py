@@ -173,30 +173,6 @@ class TestBackendLogic(unittest.TestCase):
         
         self.assertIn(("Paracetamol", "500mg"), self.usuari.get_dades_mediques.get_medicacions)
 
-    @patch("builtins.input", side_effect=["180"])
-    def test_editar_altura_valid(self, mock_input):
-        """Test per comprovar que es pot editar una altura vàlida."""
-        editar_altura(self.usuari)
-        self.assertEqual(self.usuari.get_dades_mediques.get_altura, 180)
-
-    @patch("builtins.input", side_effect=["400", "-10", "150"])
-    def test_editar_altura_invalid(self, mock_input):
-        """Test per comprovar que no es pot assignar una altura invàlida fins introduir una vàlida."""
-        editar_altura(self.usuari)
-        self.assertEqual(self.usuari.get_dades_mediques.get_altura, 150)
-
-    @patch("builtins.input", side_effect=["80"])
-    def test_editar_pes_valid(self, mock_input):
-        """Test per comprovar que es pot editar un pes vàlid."""
-        editar_pes(self.usuari)
-        self.assertEqual(self.usuari.get_dades_mediques.get_pes, 80)
-
-    @patch("builtins.input", side_effect=["500", "-20", "90"])
-    def test_editar_pes_invalid(self, mock_input):
-        """Test per comprovar que no es pot assignar un pes invàlid fins introduir un vàlid."""
-        editar_pes(self.usuari)
-        self.assertEqual(self.usuari.get_dades_mediques.get_pes, 90)
-
     def test_cita_to_string(self):
         """Test per comprovar la representació en cadena d'una cita."""
         cita = Cita(
@@ -228,6 +204,32 @@ class TestBackendLogic(unittest.TestCase):
         args, _ = mock_json_dump.call_args
         self.assertIn("ID_Usuari", args[0][0])  # Comprova que l'ID de l'usuari es guarda correctament
         self.assertIn("Altura", args[0][0])  # Comprova que altres dades es guarden correctament
+
+
+
+    @patch("builtins.input", side_effect=["180"])
+    def test_editar_altura_valid(self, mock_input):
+        """Test per comprovar que es pot editar una altura vàlida."""
+        editar_altura(self.usuari)
+        self.assertEqual(self.usuari.get_dades_mediques.get_altura, 180)
+
+    @patch("builtins.input", side_effect=["400", "-10", "150"])
+    def test_editar_altura_invalid(self, mock_input):
+        """Test per comprovar que no es pot assignar una altura invàlida fins introduir una vàlida."""
+        editar_altura(self.usuari)
+        self.assertEqual(self.usuari.get_dades_mediques.get_altura, 150)
+
+    @patch("builtins.input", side_effect=["80"])
+    def test_editar_pes_valid(self, mock_input):
+        """Test per comprovar que es pot editar un pes vàlid."""
+        editar_pes(self.usuari)
+        self.assertEqual(self.usuari.get_dades_mediques.get_pes, 80)
+
+    @patch("builtins.input", side_effect=["500", "-20", "90"])
+    def test_editar_pes_invalid(self, mock_input):
+        """Test per comprovar que no es pot assignar un pes invàlid fins introduir un vàlid."""
+        editar_pes(self.usuari)
+        self.assertEqual(self.usuari.get_dades_mediques.get_pes, 90)
 
 if __name__ == "__main__":
     unittest.main()
